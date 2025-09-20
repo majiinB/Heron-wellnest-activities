@@ -27,8 +27,8 @@ export const envSchema = z.object({
   
   // Database configuration
   DB_HOST : z.string().default("localhost"),
-  DB_PORT : z.coerce.number().default(3306),
-  DB_USER : z.string().min(1, "DB_USER is required").default("root"),
+  DB_PORT : z.coerce.number().default(5432),
+  DB_USER : z.string().min(1, "DB_USER is required").default("postgres"),
   DB_PASSWORD : z.string().optional().default(""),
   DB_NAME : z.string().min(1, "DB_NAME is required").default("heron_wellnest_db"),
 });
