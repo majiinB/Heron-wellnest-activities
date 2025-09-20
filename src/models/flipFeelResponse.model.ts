@@ -1,5 +1,6 @@
 import { Column, CreateDateColumn, Entity, Index, JoinColumn, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { FlipFeelQuestions } from "./flipFeelQuestions.model.js";
+import { FlipFeelChoice } from "./flipFeelChoices.model.js";
 
 /**
  * @file flipFeelResponse.model.ts
@@ -12,7 +13,7 @@ import { FlipFeelQuestions } from "./flipFeelQuestions.model.js";
  */
 
 @Entity("flip_feel_responses")
-export class FlipFeelChoice {
+export class FlipFeelResponse {
   @PrimaryGeneratedColumn("uuid")
   response_id!: string;
 

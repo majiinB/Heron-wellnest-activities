@@ -1,3 +1,8 @@
+import { FlipFeelChoice } from "../models/flipFeelChoices.model.js";
+import { FlipFeelQuestions } from "../models/flipFeelQuestions.model.js";
+import { GratitudeEntry } from "../models/gratitudeEntry.model.js";
+import { JournalEntry } from "../models/journalEntry.model.js";
+import { FlipFeelResponse } from "../models/flipFeelResponse.model.js";
 import { env } from "./env.config.js";
 import { DataSource } from "typeorm";
 
@@ -19,13 +24,12 @@ import { DataSource } from "typeorm";
  * @updated 2025-08-27
  */
 export const AppDataSource = new DataSource({
-  type: "mysql",
+  type: "postgres",
   host: env.DB_HOST,
   port: env.DB_PORT,
   username: env.DB_USER,
   password: env.DB_PASSWORD,
   database: env.DB_NAME,
-  entities: [ "../models/*.ts" ],
-  synchronize: true,  
-  timezone: "Z",
+  entities: [ JournalEntry, GratitudeEntry, FlipFeelQuestions, FlipFeelChoice, FlipFeelResponse ],
+  synchronize: true,
 })

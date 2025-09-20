@@ -22,10 +22,25 @@
  */
 
 import app from './app.js'
+import { AppDataSource } from './config/datasource.config.js';
 import { env } from './config/env.config.js';
+import { logger } from './utils/logger.util.js';
 
 const PORT = env.PORT || 8080;
 
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-});
+// @typescript-eslint/no-explicit-function-type
+const startServer = async (): Promise<void> => {
+  try {
+    await AppDataSource.initialize();
+    logger.info("Data Source has been initialized!");
+
+    app.listen(PORT, () => {
+      logger.info(`Server is running on port ${PORT}`);
+    });
+  } catch (error) {
+    logger.error("Error during Data Source initialization", error);
+    process.exit(1);
+  }
+};
+
+startServer();
