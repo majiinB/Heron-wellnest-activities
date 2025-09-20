@@ -1,28 +1,25 @@
 import { Column, CreateDateColumn, Entity, Index, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 
 /**
- * @file journalEntry.model.ts
+ * @file gratitudeEntry.model.ts
  * 
- * @description Journal entry model for the Heron Wellnest Activities API.
+ * @description Gratitude jar entry model for the Heron Wellnest Activities API.
  * 
  * @author Arthur M. Artugue
  * @created 2025-09-21
  * @updated 2025-09-21
  */
 
-@Entity("journal_entries")
-export class JournalEntry {
+@Entity("gratitude_entries")
+export class GratitudeEntry {
   @PrimaryGeneratedColumn("uuid")
-  journal_id!: string;
+  gratitude_id!: string;
 
   @Column({ type: "uuid" })
   user_id!: string;
 
   @Column({ type: "text" })
   content_encrypted!: string;
-
-  @Column({ type: "jsonb", nullable: true })
-  mood!: Record<string, number>;
 
   @CreateDateColumn({ type: "timestamptz" })
   created_at!: Date;
