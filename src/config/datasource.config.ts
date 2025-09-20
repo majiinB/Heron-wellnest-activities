@@ -27,4 +27,5 @@ export const AppDataSource = new DataSource({
   database: env.DB_NAME,
   entities: [ "src/entities/*.ts" ],
   synchronize: true,  
+  timezone: "Z",
 })
