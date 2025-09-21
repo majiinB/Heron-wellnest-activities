@@ -39,6 +39,12 @@ export const envSchema = z.object({
   JWT_ISSUER: z.string().default("heron-wellnest-auth-api"),
   JWT_AUDIENCE: z.string().default("heron-wellnest-users"),
   JWT_ALGORITHM: z.enum(["HS256", "RS256"]).default("HS256"),
+
+  // Encryption
+  CONTENT_ENCRYPTION_KEY: z.string().min(32, "CONTENT_ENCRYPTION_KEY must be at least 32 characters").default("default_content_encryption_key_1234"),
+  CONTENT_ENCRYPTION_ALGORITHM: z.enum(["aes-256-gcm"]).default("aes-256-gcm"),
+  CONTENT_ENCRYPTION_IV_LENGTH: z.coerce.number().default(16), // in bytes
+  CONTENT_ENCRYPTION_KEY_LENGTH: z.coerce.number().default(32), // in bytes
   // CORS_ORIGIN: z.string().url(),
 }).superRefine((env, ctx) => {
   if (env.JWT_ALGORITHM === "HS256" && !env.JWT_SECRET) {

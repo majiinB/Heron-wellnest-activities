@@ -35,6 +35,10 @@ app.use(cors(corsOptions));
 app.use(express.json()); 
 app.use(loggerMiddleware); // Custom logger middleware
 
+app.use('/api/v1/activities', (req, res) => {
+  res.status(200).json({ message: 'Activities endpoint' });
+});
+
 // This is a health check route
 app.get('/api/v1/auth/health', (_req, res) => {
   res.status(200).json({ status: 'ok' });

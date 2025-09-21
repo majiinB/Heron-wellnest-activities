@@ -18,8 +18,12 @@ export class JournalEntry {
   @Column({ type: "uuid" })
   user_id!: string;
 
-  @Column({ type: "text" })
-  content_encrypted!: string;
+  @Column({ type: "jsonb" })
+  content_encrypted!: {
+    iv: string;
+    content: string;
+    tag: string;
+  };
 
   @Column({ type: "jsonb", nullable: true })
   mood!: Record<string, number>;

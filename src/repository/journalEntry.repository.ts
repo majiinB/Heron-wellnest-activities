@@ -1,4 +1,4 @@
-import type { Repository } from "typeorm";
+import { LessThan, type Repository } from "typeorm";
 import { AppDataSource } from "../config/datasource.config.js";
 import { JournalEntry } from "../models/journalEntry.model.js";
 
@@ -41,7 +41,15 @@ export class JournalEntryRepository {
    * @param mood - (Optional) An object representing the user's mood, where keys are mood types and values are their respective scores.
    * @returns A promise that resolves to the saved journal entry entity.
    */
-  async createEntry(user_id: string, content_encrypted: string, mood?: Record<string, number>) {
+  async createEntry(
+    user_id: string, 
+    content_encrypted: {
+      iv: string;
+      content: string;
+      tag: string;
+    }, 
+    mood?: Record<string, number>
+  ) {
     const entry = this.repo.create({
       user_id,
       content_encrypted,
@@ -66,12 +74,27 @@ export class JournalEntryRepository {
    * Retrieves all journal entries for a specific user that have not been deleted.
    *
    * @param user_id - The unique identifier of the user whose journal entries are to be fetched.
+   * @param lastEntryId - (Optional) The ID of the last journal entry from the previous page, used for pagination.
+   * @param limit - (Optional) The maximum number of entries to retrieve. Defaults to 10.
    * @returns A promise that resolves to an array of journal entries, ordered by creation date in descending order.
    */
-  async findByUser(user_id: string) {
-    return await this.repo.find({
-      where: { user_id, is_deleted: false },
-      order: { created_at: "DESC" },
+  async findByUserAfterId(user_id: string, lastEntryId?: string, limit: number = 10) {
+    let where: any = { user_id, is_deleted: false };
+
+    if (lastEntryId) {
+      const lastEntry = await this.repo.findOne({ where: { journal_id: lastEntryId } });
+      if (lastEntry) {
+        where = [
+          { user_id, is_deleted: false, created_at: LessThan(lastEntry.created_at) },
+          { user_id, is_deleted: false, created_at: lastEntry.created_at, journal_id: LessThan(lastEntry.journal_id) }
+        ];
+      }
+    }
+
+    return this.repo.find({
+      where,
+      order: { created_at: "DESC", journal_id: "DESC" },
+      take: limit,
     });
   }
 
@@ -83,7 +106,15 @@ export class JournalEntryRepository {
    * @param mood - (Optional) An object representing mood values to update for the journal entry.
    * @returns The updated journal entry if found, otherwise `null`.
    */
-  async updateEntry(journal_id: string, content_encrypted?: string, mood?: Record<string, number>) {
+  async updateEntry(
+    journal_id: string, 
+    content_encrypted?: {
+      iv: string;
+      content: string;
+      tag: string;
+    }, 
+    mood?: Record<string, number>
+  ) {
     const entry = await this.findById(journal_id);
     if (!entry) return null;
 
