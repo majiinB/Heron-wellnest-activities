@@ -1,4 +1,4 @@
-import type { EntityManager, Repository } from "typeorm";
+import type { Repository } from "typeorm";
 import { AppDataSource } from "../config/datasource.config.js";
 import { JournalEntry } from "../models/journalEntry.model.js";
 
@@ -33,7 +33,6 @@ export class JournalEntryRepository {
     this.repo = AppDataSource.getRepository(JournalEntry);
   }
 
-  // Create a new journal entry
   /**
    * Creates a new journal entry for a user.
    *
@@ -51,7 +50,6 @@ export class JournalEntryRepository {
     return await this.repo.save(entry);
   }
 
-  // Get entry by ID
   /**
    * Retrieves a journal entry by its unique identifier, excluding entries marked as deleted.
    *
@@ -64,7 +62,6 @@ export class JournalEntryRepository {
     });
   }
 
-  // Get all entries for a user
   /**
    * Retrieves all journal entries for a specific user that have not been deleted.
    *
@@ -78,7 +75,6 @@ export class JournalEntryRepository {
     });
   }
 
-  // Update entry content (and optionally mood)
   /**
    * Updates a journal entry with new encrypted content and/or mood values.
    *
@@ -112,7 +108,6 @@ export class JournalEntryRepository {
     return await this.repo.save(entry);
   }
 
-  // Permanently delete entry (be careful with this)
   /**
    * Permanently deletes a journal entry from the repository by its ID.
    *
@@ -136,7 +131,6 @@ export class JournalEntryRepository {
     });
   }
 
-  // Count entries for a user
   /**
    * Counts the number of journal entries for a specific user that are not marked as deleted.
    *
