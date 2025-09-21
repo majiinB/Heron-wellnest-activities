@@ -3,16 +3,59 @@ import { JournalEntry } from "../models/journalEntry.model.js";
 import type { JournalEntryRepository } from "../repository/journalEntry.repository.js";
 import { decrypt, encrypt } from "../utils/crypto.util.js";
 
+/**
+ * Service class for managing Journal entries.
+ *
+ * @description Provides methods to create, retrieve, update, and delete journal entries.
+ * Handles content encryption/decryption before interacting with the repository layer.
+ *
+ * @remarks
+ * - Content is encrypted before storage and decrypted when retrieved.
+ * - Soft delete marks an entry as deleted without removing it from the database.
+ * - Hard delete permanently removes the entry.
+ * - Supports pagination-like retrieval using `lastEntryId`.
+ * - Encryption key is loaded from environment variables via `env.CONTENT_ENCRYPTION_KEY`.
+ *
+ * @example
+ * ```typescript
+ * const service = new JournalService(journalRepo);
+ * await service.createEntry(userId, "My private journal entry");
+ * const entries = await service.getEntriesByUser(userId, 10);
+ * ```
+ *
+ * @file journal.service.ts
+ * 
+ * @author Arthur M. Artugue
+ * @created 2025-09-21
+ * @updated 2025-09-22
+ */
 export class JournalService {
   private journalRepo : JournalEntryRepository;
   private secret: string;
 
+  /**
+   * Creates an instance of the JournalService.
+   * 
+   * @param journalRepo - The repository used for accessing and managing journal entries.
+   * 
+   * Initializes the journal repository and sets the encryption key from environment variables.
+   */
   constructor(journalRepo : JournalEntryRepository) {
     this.journalRepo = journalRepo;
     this.secret = env.CONTENT_ENCRYPTION_KEY;
   }
 
-  public async createEntry(userId: string, content: string) {
+  /**
+   * Creates a new journal entry for the specified user.
+   *
+   * Encrypts the provided content using the service's secret before storing it.
+   * Returns the created `JournalEntry` object.
+   *
+   * @param userId - The unique identifier of the user creating the entry.
+   * @param content - The plain text content of the journal entry.
+   * @returns A promise that resolves to the newly created `JournalEntry`.
+   */
+  public async createEntry(userId: string, content: string): Promise<JournalEntry> {
 
     const encryptedContent = encrypt(content, this.secret);
 
@@ -21,30 +64,57 @@ export class JournalService {
     // TODO: Send event to message broker
   }
 
+  /**
+   * Retrieves a list of journal entries for a specific user, optionally paginated by the last entry ID.
+   * Decrypts the content of each entry before returning.
+   *
+   * @param userId - The unique identifier of the user whose journal entries are to be retrieved.
+   * @param limit - The maximum number of entries to return. Defaults to 10.
+   * @param lastEntryId - (Optional) The ID of the last entry from the previous page, used for pagination.
+   * @returns A promise that resolves to an array of decrypted journal entries for the user.
+   */
   public async getEntriesByUser(
     userId: string,
     limit: number = 10,
     lastEntryId?: string
-  ) {
+  ) : Promise<JournalEntry[]> {
     const entries = await this.journalRepo.findByUserAfterId(userId, lastEntryId, limit);
 
     return entries.map(entry => ({
       ...entry,
       content: decrypt(entry.content_encrypted, this.secret)
-    }));
+    }) as JournalEntry & { content: string });
   }
 
-  public async getEntryById(journalId: string) {
+  /**
+   * Retrieves a journal entry by its ID, decrypting its content before returning.
+   *
+   * @param journalId - The unique identifier of the journal entry to retrieve.
+   * @returns A promise that resolves to the journal entry with decrypted content, or `null` if not found.
+   */
+  public async getEntryById(journalId: string): Promise<JournalEntry | null> {
     const entry = await this.journalRepo.findById(journalId);
     if (!entry) return null;
 
     return {
       ...entry,
       content: decrypt(entry.content_encrypted, this.secret)
-    };
+    } as JournalEntry & { content: string };
   }
 
-  public async updateEntry(journalId: string, content?: string, mood?: Record<string, number>) {
+  /**
+   * Updates a journal entry with new content and/or mood.
+   *
+   * If `content` is provided, it will be encrypted before updating the entry.
+   * The method returns the updated journal entry with decrypted content.
+   * If no entry is found for the given `journalId`, it returns `null`.
+   *
+   * @param journalId - The unique identifier of the journal entry to update.
+   * @param content - (Optional) The new content for the journal entry.
+   * @param mood - (Optional) An object representing mood values to update.
+   * @returns A promise that resolves to the updated journal entry with decrypted content, or `null` if not found.
+   */
+  public async updateEntry(journalId: string, content?: string, mood?: Record<string, number>) : Promise<JournalEntry | null> {
     let encryptedContent;
     if (content) {
       encryptedContent = encrypt(content, this.secret);
@@ -56,14 +126,29 @@ export class JournalService {
     return {
       ...updatedEntry,
       content: content ? content : decrypt(updatedEntry.content_encrypted, this.secret)
-    };
+    } as JournalEntry & { content: string };
   }
 
-  public async softDeleteEntry(journalId: string) {
-    return this.journalRepo.softDelete(journalId);
+  /**
+   * Soft deletes a journal entry by its ID.
+   * 
+   * Marks the specified journal entry as deleted without permanently removing it from the database.
+   *
+   * @param journalId - The unique identifier of the journal entry to be soft deleted.
+   * @returns A promise that resolves when the operation is complete.
+   */
+  public async softDeleteEntry(journalId: string): Promise<void> {
+    this.journalRepo.softDelete(journalId);
   }
 
-  public async hardDeleteEntry(journalId: string) {
-    return this.journalRepo.hardDelete(journalId);
+  /**
+   * Permanently deletes a journal entry by its ID.
+   * This operation removes the entry from the database and cannot be undone.
+   *
+   * @param journalId - The unique identifier of the journal entry to delete.
+   * @returns A promise that resolves when the deletion is complete.
+   */
+  public async hardDeleteEntry(journalId: string): Promise<void> {
+    this.journalRepo.hardDelete(journalId);
   }
 }

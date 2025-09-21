@@ -24,7 +24,7 @@ import { GratitudeEntry } from "../models/gratitudeEntry.model.js";
  * 
  * @author Arthur M. Artugue
  * @created 2025-09-21
- * @updated 2025-09-21
+ * @updated 2025-09-22
  */
 export class GratitudeEntryRepository {
   private repo: Repository<GratitudeEntry>;
@@ -40,7 +40,14 @@ export class GratitudeEntryRepository {
    * @param content_encrypted - The encrypted content of the gratitude jar entry.
    * @returns A promise that resolves to the saved Gratitude jar entry entity.
    */
-  async createEntry(user_id: string, content_encrypted: string) {
+  async createEntry(
+    user_id: string, 
+    content_encrypted: {
+      iv: string;
+      content: string;
+      tag: string;
+    }
+  ) {
     const entry = this.repo.create({
       user_id,
       content_encrypted,
@@ -80,7 +87,14 @@ export class GratitudeEntryRepository {
    * @param content_encrypted - (Optional) The new encrypted content for the gratitude jar entry.
    * @returns The updated gratitude jar entry if found, otherwise `null`.
    */
-  async updateEntry(gratitude_id: string, content_encrypted?: string) {
+  async updateEntry(
+    gratitude_id: string, 
+    content_encrypted: {
+      iv: string;
+      content: string;
+      tag: string;
+    }
+  ) {
     const entry = await this.findById(gratitude_id);
     if (!entry) return null;
 
