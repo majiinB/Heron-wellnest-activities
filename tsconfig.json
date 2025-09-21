@@ -22,6 +22,6 @@
     "noUncheckedSideEffectImports": true
     // Remove "jsx": "react-jsx" unless you use React
   },
-  "include": ["src/**/*.ts", "src/**/*.mts"],
+  "include": ["src/**/*.ts", "src/**/*.mts", "src/repository/.repository.ts"],
   "exclude": ["eslint.config.mts"]
 }
