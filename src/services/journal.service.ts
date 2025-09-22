@@ -1,6 +1,7 @@
 import { env } from "../config/env.config.js";
 import { JournalEntry } from "../models/journalEntry.model.js";
 import type { JournalEntryRepository } from "../repository/journalEntry.repository.js";
+import type { ApiResponse } from "../types/apiResponse.type.js";
 import { decrypt, encrypt } from "../utils/crypto.util.js";
 
 /**
@@ -59,7 +60,12 @@ export class JournalService {
 
     const encryptedContent = encrypt(content, this.secret);
 
-    return this.journalRepo.createEntry(userId, encryptedContent);
+    const entry : JournalEntry = await this.journalRepo.createEntry(userId, encryptedContent);
+    
+    return {
+      ...entry,
+      content: decrypt(entry.content_encrypted, this.secret)
+    } as JournalEntry & { content: string };
 
     // TODO: Send event to message broker
   }
