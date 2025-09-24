@@ -43,15 +43,21 @@ export class JournalEntryRepository {
    */
   async createEntry(
     user_id: string, 
+    title_encrypted: {
+      iv: string;
+      content: string;
+      tag: string;
+    },
     content_encrypted: {
       iv: string;
       content: string;
       tag: string;
     }, 
     mood?: Record<string, number>
-  ) {
+  ): Promise<JournalEntry> {
     const entry = this.repo.create({
       user_id,
+      title_encrypted,
       content_encrypted,
       mood,
     });
@@ -64,7 +70,7 @@ export class JournalEntryRepository {
    * @param journal_id - The unique identifier of the journal entry to retrieve.
    * @returns A promise that resolves to the journal entry if found and not deleted, otherwise `null`.
    */
-  async findById(journal_id: string) {
+  async findById(journal_id: string): Promise<JournalEntry | null> {
     return await this.repo.findOne({
       where: { journal_id, is_deleted: false },
     });
@@ -78,7 +84,8 @@ export class JournalEntryRepository {
    * @param limit - (Optional) The maximum number of entries to retrieve. Defaults to 10.
    * @returns A promise that resolves to an array of journal entries, ordered by creation date in descending order.
    */
-  async findByUserAfterId(user_id: string, lastEntryId?: string, limit: number = 10) {
+  async findByUserAfterId(user_id: string, lastEntryId?: string, limit: number = 10): Promise<JournalEntry[]> {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let where: any = { user_id, is_deleted: false };
 
     if (lastEntryId) {
@@ -114,7 +121,7 @@ export class JournalEntryRepository {
       tag: string;
     }, 
     mood?: Record<string, number>
-  ) {
+  ): Promise <JournalEntry | null> {
     const entry = await this.findById(journal_id);
     if (!entry) return null;
 
@@ -131,7 +138,7 @@ export class JournalEntryRepository {
    * @param journal_id - The unique identifier of the journal entry to be soft deleted.
    * @returns The updated journal entry with `is_deleted` set to `true`, or `null` if the entry does not exist.
    */
-  async softDelete(journal_id: string) {
+  async softDelete(journal_id: string): Promise<JournalEntry | null> {
     const entry = await this.findById(journal_id);
     if (!entry) return null;
 
@@ -145,8 +152,8 @@ export class JournalEntryRepository {
    * @param journal_id - The unique identifier of the journal entry to delete.
    * @returns A promise that resolves with the result of the delete operation.
    */
-  async hardDelete(journal_id: string) {
-    return await this.repo.delete(journal_id);
+  async hardDelete(journal_id: string): Promise<void> {
+    await this.repo.delete(journal_id);
   }
 
   /**
@@ -155,7 +162,7 @@ export class JournalEntryRepository {
    * @param user_id - The unique identifier of the user whose latest journal entry is to be fetched.
    * @returns A promise that resolves to the most recent journal entry for the user, or `null` if none exists.
    */
-  async findLatestByUser(user_id: string) {
+  async findLatestByUser(user_id: string): Promise<JournalEntry | null> {
     return await this.repo.findOne({
       where: { user_id, is_deleted: false },
       order: { created_at: "DESC" },
@@ -168,7 +175,7 @@ export class JournalEntryRepository {
    * @param user_id - The unique identifier of the user whose journal entries are to be counted.
    * @returns A promise that resolves to the count of non-deleted journal entries for the specified user.
    */
-  async countByUser(user_id: string) {
+  async countByUser(user_id: string): Promise<number> {
     return await this.repo.count({
       where: { user_id, is_deleted: false },
     });

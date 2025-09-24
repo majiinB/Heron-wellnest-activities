@@ -19,7 +19,7 @@
     "moduleDetection": "force",
     "skipLibCheck": true,
     "isolatedModules": true,
-    "noUncheckedSideEffectImports": true
+    "noUncheckedSideEffectImports": true,
     // Remove "jsx": "react-jsx" unless you use React
   },
   "include": ["src/**/*.ts", "src/**/*.mts", "src/repository/.repository.ts"],

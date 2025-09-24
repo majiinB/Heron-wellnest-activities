@@ -19,6 +19,13 @@ export class JournalEntry {
   user_id!: string;
 
   @Column({ type: "jsonb" })
+  title_encrypted!: {
+    iv: string;
+    content: string;
+    tag: string;
+  };
+
+  @Column({ type: "jsonb" })
   content_encrypted!: {
     iv: string;
     content: string;
