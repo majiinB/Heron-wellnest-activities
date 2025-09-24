@@ -25,6 +25,7 @@ export async function heronAuthMiddleware(req: AuthenticatedRequest, res: Respon
       email: payload.email!,
       name: payload.name!,
       sub: payload.sub!,
+      role: payload.role!,
     };
 
     next();

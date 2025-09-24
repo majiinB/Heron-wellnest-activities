@@ -13,9 +13,12 @@ const journalController = new JournalController(journalService);
 
 /**
  * @openapi
- * /:
+ * /api/v1/activities/mind-mirror/:
  *   post:
  *     summary: Create a new journal entry
+ *     description: Allows a student to create a journal entry with an encrypted title and content.
+ *     tags:
+ *       - Journal
  *     security:
  *       - bearerAuth: []
  *     requestBody:
@@ -24,21 +27,31 @@ const journalController = new JournalController(journalService);
  *         application/json:
  *           schema:
  *             type: object
- *             properties:
- *               title:
- *                 type: string
- *               content:
- *                 type: string
  *             required:
  *               - title
  *               - content
+ *             properties:
+ *               title:
+ *                 type: string
+ *                 minLength: 5
+ *                 maxLength: 100
+ *                 example: "Test journal 2"
+ *               content:
+ *                 type: string
+ *                 minLength: 20
+ *                 maxLength: 2000
+ *                 example: "Once upon a time ako ay nagawa ng api para sa thesis namin"
  *     responses:
- *       201:
+ *       '201':
  *         description: Journal entry created successfully
- *       400:
- *         description: Invalid input
- *       401:
- *         description: Unauthorized
+ *       '400':
+ *         description: Bad request - validation failed
+ *       '401':
+ *         description: Unauthorized - missing or invalid token
+ *       '403':
+ *         description: Forbidden - insufficient permissions
+ *       '500':
+ *         description: Internal server error
  */
 router.post('/', heronAuthMiddleware, asyncHandler(journalController.handleJournalEntryCreation.bind(journalController)));
 
