@@ -56,14 +56,16 @@ export class JournalService {
    * @param content - The plain text content of the journal entry.
    * @returns A promise that resolves to the newly created `JournalEntry`.
    */
-  public async createEntry(userId: string, content: string): Promise<JournalEntry> {
+  public async createEntry(userId: string, title: string, content: string): Promise<JournalEntry> {
 
     const encryptedContent = encrypt(content, this.secret);
+    const encryptedTitle = encrypt(title, this.secret);
 
-    const entry : JournalEntry = await this.journalRepo.createEntry(userId, encryptedContent);
+    const entry : JournalEntry = await this.journalRepo.createEntry(userId, encryptedTitle, encryptedContent);
     
     return {
       ...entry,
+      title: decrypt(entry.title_encrypted, this.secret),
       content: decrypt(entry.content_encrypted, this.secret)
     } as JournalEntry & { content: string };
 
