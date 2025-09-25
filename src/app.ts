@@ -19,7 +19,7 @@
  *
  * @author Arthur M. Artugue
  * @created 2025-08-16
- * @updated 2025-09-24
+ * @updated 2025-09-25
  */
 
 import express from 'express';
@@ -30,6 +30,7 @@ import {corsOptions} from './config/cors.config.js';
 import { loggerMiddleware } from './middlewares/logger.middleware.js';
 import { errorMiddleware } from './middlewares/error.middleware.js';
 import journalRoute from './routes/journal.routes.js'
+import { env } from './config/env.config.js';
 
 const app : express.Express = express();
 
@@ -40,11 +41,11 @@ const swaggerOptions = {
     info: {
       title: 'Heron Wellnest Activities API',
       version: '1.0.0',
-      description: 'API documentation for Heron Wellnest Activities API. Responsible for gamified activities inside the app (e.g. Mind Mirror / Journaling, Flip and Feel, Gratitude Jar, Mood check-in / Mood meter)',
+      description:"Heron Wellnest Activities API provides endpoints for managing and tracking gamified wellness activities within the app, including journaling (Mind Mirror), mood tracking (Mood Meter / Mood Check-in), gratitude exercises (Gratitude Jar), and interactive experiences (Flip and Feel). This API enables secure creation, retrieval, and management of user activity data while supporting authenticationand role-based access control.",
     },
     servers: [
       {
-        url: 'http://localhost:8080/api/v1/activities', // adjust your base URL
+        url: `http://localhost:${env.PORT}/api/v1/activities`, // adjust your base URL
       },
     ],
   },

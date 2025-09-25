@@ -2,6 +2,8 @@ import { env } from "../config/env.config.js";
 import { JournalEntry } from "../models/journalEntry.model.js";
 import type { JournalEntryRepository } from "../repository/journalEntry.repository.js";
 import type { ApiResponse } from "../types/apiResponse.type.js";
+import type { EncryptedField } from "../types/encryptedField.type.js";
+import type { PaginatedJournalEntries } from "../types/paginatedJournalEtntries.type.js";
 import type { SafeJournalEntry } from "../types/safeJournalEntry.type.js";
 import { decrypt, encrypt } from "../utils/crypto.util.js";
 import { toSafeJournalEntries, toSafeJournalEntry } from "../utils/journal.util.js";
@@ -30,16 +32,12 @@ import { toSafeJournalEntries, toSafeJournalEntry } from "../utils/journal.util.
  * 
  * @author Arthur M. Artugue
  * @created 2025-09-21
- * @updated 2025-09-22
+ * @updated 2025-09-25
  */
 export class JournalService {
   private journalRepo : JournalEntryRepository;
   private secret: string;
-  private readonly decryptField = (field: {
-    iv: string;
-    content: string;
-    tag: string;
-  }) => decrypt(field, this.secret);
+  private readonly decryptField = (field: EncryptedField) => decrypt(field, this.secret);
 
 
   /**
@@ -90,10 +88,21 @@ export class JournalService {
     userId: string,
     limit: number = 10,
     lastEntryId?: string
-  ) : Promise<SafeJournalEntry[]> {
-    const entries : JournalEntry[] = await this.journalRepo.findByUserAfterId(userId, lastEntryId, limit);
+  ) : Promise<PaginatedJournalEntries> {
+    const fetchLimit: number = limit + 1; // Fetch one extra to check if there's more
 
-    return toSafeJournalEntries(entries, this.decryptField);
+    const entries : JournalEntry[] = await this.journalRepo.findByUserAfterId(userId, lastEntryId, fetchLimit);
+
+    const hasMore = entries.length > limit;
+
+    // If more, remove the extra entry
+    const slicedEntries = hasMore ? entries.slice(0, limit) : entries;
+
+    return {
+      entries: toSafeJournalEntries(slicedEntries, this.decryptField),
+      hasMore,
+      nextCursor: hasMore ? slicedEntries[slicedEntries.length - 1].journal_id : undefined,
+    };
   }
 
   /**

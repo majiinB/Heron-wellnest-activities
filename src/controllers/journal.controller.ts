@@ -3,7 +3,34 @@ import type { NextFunction, Response} from "express";
 import type { JournalService } from "../services/journal.service.js";
 import type { ApiResponse } from "../types/apiResponse.type.js";
 import { AppError } from "../types/appError.type.js";
+import { validateUser } from "../utils/authorization util.js";
+import type { JournalEntry } from "../models/journalEntry.model.js";
+import type { SafeJournalEntry } from "../types/safeJournalEntry.type.js";
+import type { PaginatedJournalEntries } from "../types/paginatedJournalEtntries.type.js";
 
+/**
+ * Controller class for handling Journal entry-related HTTP requests.
+ * 
+ * @description This class provides methods to handle creating, retrieving, updating, and deleting journal entries.
+ * It interacts with the `JournalService` to perform business logic and data manipulation.
+ * Each method corresponds to an endpoint and is responsible for validating input, invoking service methods, and formatting responses.
+ * 
+ * @remarks
+ * - Input validation is performed to ensure required fields are present and meet length constraints.
+ * - User authentication and role validation are enforced to restrict access to authorized users only.
+ * - Responses are standardized using the `ApiResponse` type.
+ * 
+ * @example
+ * ```typescript
+ * const controller = new JournalController(journalService);
+ * app.post('/journal', controller.handleJournalEntryCreation.bind(controller));
+ * ```
+ * @file journal.controller.ts
+ * 
+ * @author Arthur M. Artugue
+ * @created 2025-09-22
+ * @updated 2025-09-25
+ */
 export class JournalController {
   private journalService: JournalService;
 
@@ -11,38 +38,24 @@ export class JournalController {
     this.journalService = journalService
   }
 
+  /**
+   * Handles the creation of a journal entry for an authenticated student user.
+   * 
+   * Validates the user's identity and role, as well as the request body fields (`title` and `content`).
+   * Ensures the title is between 5 and 100 characters, and the content is between 20 and 2000 characters.
+   * On successful validation, creates a new journal entry and responds with a success message and the created entry.
+   * 
+   * @param req - The authenticated request containing user information and journal entry data.
+   * @param res - The response object used to send the result back to the client.
+   * @param _next - The next middleware function (unused).
+   * @throws {AppError} If validation fails for user, title, or content.
+   */
   public async handleJournalEntryCreation(req: AuthenticatedRequest, res: Response, _next: NextFunction): Promise<void> {
     const userId = req.user?.sub;
     const userRole = req.user?.role;
     const { title, content } = req.body || {};
 
-    // Request validation
-    if (!userId) {
-      throw new AppError(
-        401,
-        'UNAUTHORIZED',
-        "Unauthorized: User ID missing",
-        true
-      );
-    }
-
-    if (!userRole) {
-      throw new AppError(
-        401,
-        'FORBIDDEN',
-        "Forbidden: Insufficient permissions",
-        true
-      );
-    }
-
-    if (userRole !== 'student') {
-      throw new AppError(
-        403,
-        'FORBIDDEN',
-        "Forbidden: Insufficient permissions",
-        true
-      );
-    }
+    validateUser(userId, userRole, "student");
 
     // Validate title and content
     if (!title || !title.trim() || !content || !content.trim()) {
@@ -76,7 +89,7 @@ export class JournalController {
     }
 
     // Create journal entry
-    const journalEntry = await this.journalService.createEntry(userId, title.trim(), content.trim());
+    const journalEntry: SafeJournalEntry = await this.journalService.createEntry(userId!, title.trim(), content.trim());
 
     const response: ApiResponse = {
       success: true,
@@ -90,7 +103,47 @@ export class JournalController {
     return; 
   }
 
+  /**
+   * Handles the retrieval of journal entries for an authenticated student user.
+   * 
+   * Validates the user's identity and role. Supports pagination using `limit` and `lastEntryId`
+   * query parameters. The default limit is 10, and the maximum allowed is 50.
+   * On successful validation, retrieves the requested journal entries and responds 
+   * with a success message and the paginated entries.
+   * 
+   * @param req - The authenticated request containing user information and optional query parameters (`limit`, `lastEntryId`).
+   * @param res - The response object used to send the result back to the client.
+   * @param _next - The next middleware function (unused).
+   * @throws {AppError} If validation fails for the user or permissions.
+   */
   public async handleJournalEntryRetrieval(req: AuthenticatedRequest, res: Response, _next: NextFunction): Promise<void> {
+    const userId = req.user?.sub;
+    const userRole = req.user?.role;
+
+    validateUser(userId, userRole, "student");
+
+    const limitParam = req.query.limit as string | undefined;
+    const lastEntryId = req.query.lastEntryId as string | undefined;
+
+    let limit = 10; // Default limit
+    if (limitParam) {
+      const parsedLimit = parseInt(limitParam, 10);
+      if (!isNaN(parsedLimit) && parsedLimit > 0 && parsedLimit <= 50) {
+        limit = parsedLimit;
+      }
+    }
+
+    const entries: PaginatedJournalEntries = await this.journalService.getEntriesByUser(userId!, limit, lastEntryId);
+
+    const response: ApiResponse = {
+      success: true,
+      code: "JOURNAL_ENTRIES_RETRIEVED",
+      message: "Journal entries retrieved successfully",
+      data: entries
+    };
+
+    res.status(200).json(response);
+
     return; 
   }
 

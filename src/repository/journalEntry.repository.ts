@@ -24,7 +24,7 @@ import { JournalEntry } from "../models/journalEntry.model.js";
  * 
  * @author Arthur M. Artugue
  * @created 2025-09-21
- * @updated 2025-09-21
+ * @updated 2025-09-25
  */
 export class JournalEntryRepository {
   private repo: Repository<JournalEntry>;

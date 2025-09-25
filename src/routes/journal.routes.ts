@@ -10,6 +10,23 @@ const journalRepository = new JournalEntryRepository();
 const journalService = new JournalService(journalRepository);
 const journalController = new JournalController(journalService);
 
+/**
+ * @openapi
+ * components:
+ *   schemas:
+ *     ErrorResponse:
+ *       type: object
+ *       properties:
+ *         success:
+ *           type: boolean
+ *           example: false
+ *         code:
+ *           type: string
+ *           example: BAD_REQUEST
+ *         message:
+ *           type: string
+ *           example: Invalid input data
+ */
 
 /**
  * @openapi
@@ -18,7 +35,7 @@ const journalController = new JournalController(journalService);
  *     summary: Create a new journal entry
  *     description: Allows a student to create a journal entry with an encrypted title and content.
  *     tags:
- *       - Journal
+ *       - Journal /  Mind Mirror
  *     security:
  *       - bearerAuth: []
  *     requestBody:
@@ -44,17 +61,212 @@ const journalController = new JournalController(journalService);
  *     responses:
  *       '201':
  *         description: Journal entry created successfully
- *       '400':
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 code:
+ *                   type: string
+ *                   example: JOURNAL_ENTRY_CREATED
+ *                 message:
+ *                   type: string
+ *                   example: Journal entry created successfully
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     journal_id:
+ *                       type: string
+ *                       format: uuid
+ *                       example: 54a2a768-8e62-41ac-8b6e-e5092881000e
+ *                     user_id:
+ *                       type: string
+ *                       format: uuid
+ *                       example: 6bf00386-77e5-4a02-9ed9-5f4f294ceb8b
+ *                     created_at:
+ *                       type: string
+ *                       format: date-time
+ *                       example: 2025-09-25T12:08:11.190Z
+ *                     updated_at:
+ *                       type: string
+ *                       format: date-time
+ *                       example: 2025-09-25T12:08:11.190Z
+ *                     is_deleted:
+ *                       type: boolean
+ *                       example: false
+ *                     title:
+ *                       type: string
+ *                       example: Test journal 3
+ *                     content:
+ *                       type: string
+ *                       example: Once upon a time ako ay nagawa ng api para sa thesis namin
+ *       "400":
  *         description: Bad request - validation failed
- *       '401':
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *             examples:
+ *               badRequest:
+ *                 value:
+ *                   success: false
+ *                   code: BAD_REQUEST
+ *                   message: "Bad Request: Title and content are required"
+ *       "401":
  *         description: Unauthorized - missing or invalid token
- *       '403':
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *             examples:
+ *               unauthorized:
+ *                 value:
+ *                   success: false
+ *                   code: "UNAUTHORIZED / AUTH_NO_TOKEN"
+ *                   message: "Unauthorized: User ID missing / no token provided"
+ *       "403":
  *         description: Forbidden - insufficient permissions
- *       '500':
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *             examples:
+ *               forbidden:
+ *                 value:
+ *                   success: false
+ *                   code: FORBIDDEN
+ *                   message: "Forbidden: Insufficient permissions / Forbidden: <role_needed> role required"
+ *       "500":
  *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *             examples:
+ *               serverError:
+ *                 value:
+ *                   success: false
+ *                   code: INTERNAL_SERVER_ERROR
+ *                   message: Internal server error
  */
 router.post('/', heronAuthMiddleware, asyncHandler(journalController.handleJournalEntryCreation.bind(journalController)));
 
+/**
+ * @openapi
+ * /api/v1/activities/mind-mirror/:
+ *   get:
+ *     summary: Retrieve journal entries for a student
+ *     description: Retrieves all journal entries for the authenticated student, including decrypted title, content, and optional mood. Supports pagination via `limit` and `lastEntryId` query parameters.
+ *     tags:
+ *       - Journal /  Mind Mirror
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - name: limit
+ *         in: query
+ *         description: Maximum number of entries to retrieve (default 10, max 50)
+ *         required: false
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           maximum: 50
+ *           default: 10
+ *       - name: lastEntryId
+ *         in: query
+ *         description: The ID of the last journal entry from the previous page (for pagination)
+ *         required: false
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *     responses:
+ *       "200":
+ *         description: Journal entries retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 code:
+ *                   type: string
+ *                   example: JOURNAL_ENTRIES_RETRIEVED
+ *                 message:
+ *                   type: string
+ *                   example: Journal entries retrieved successfully
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     entries:
+ *                       type: array
+ *                       items:
+ *                         type: object
+ *                         properties:
+ *                           journal_id:
+ *                             type: string
+ *                             format: uuid
+ *                           user_id:
+ *                             type: string
+ *                             format: uuid
+ *                           created_at:
+ *                             type: string
+ *                             format: date-time
+ *                           updated_at:
+ *                             type: string
+ *                             format: date-time
+ *                           is_deleted:
+ *                             type: boolean
+ *                           title:
+ *                             type: string
+ *                           content:
+ *                             type: string
+ *                     hasMore:
+ *                       type: boolean
+ *                     nextCursor:
+ *                       type: string
+ *                       format: uuid
+ *                       nullable: true
+ *       "401":
+ *         description: Unauthorized - missing or invalid token
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *             examples:
+ *               unauthorized:
+ *                 value:
+ *                   success: false
+ *                   code: "UNAUTHORIZED / AUTH_NO_TOKEN"
+ *                   message: "Unauthorized: User ID missing / no token provided"
+ *       "403":
+ *         description: Forbidden - insufficient permissions
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *             examples:
+ *               forbidden:
+ *                 value:
+ *                   success: false
+ *                   code: FORBIDDEN
+ *                   message: "Forbidden: Insufficient permissions / Forbidden: <role_needed> role required"
+ *       "500":
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *             examples:
+ *               serverError:
+ *                 value:
+ *                   success: false
+ *                   code: INTERNAL_SERVER_ERROR
+ *                   message: Internal server error
+ */
 router.get('/', heronAuthMiddleware, asyncHandler(journalController.handleJournalEntryRetrieval.bind(journalController)));
 
 router.get('/:id', heronAuthMiddleware, asyncHandler(journalController.handleSpecificJournalEntryRetrieval.bind(journalController)));

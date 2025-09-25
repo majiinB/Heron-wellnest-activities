@@ -6,8 +6,8 @@
  * @file jwtConfig.type.ts
  * 
  * @author Arthur M. Artugue
- * @created 2025-09-29
- * @updated 2025-09-29
+ * @created 2025-09-21
+ * @updated 2025-09-25
  */
 export type JwtConfig = {
   alg: "HS256" | "RS256";

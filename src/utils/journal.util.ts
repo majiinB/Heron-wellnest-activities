@@ -3,13 +3,6 @@ import { AppError } from "../types/appError.type.js";
 import type { SafeJournalEntry } from "../types/safeJournalEntry.type.js";
 
 /**
- * Converts an encrypted journal entry into a safe journal entry by decrypting the title and content fields.
- *
- * @param entry - The encrypted journal entry object containing title and content fields.
- * @param key - The decryption key used to decrypt the title and content.
- * @returns A safe journal entry object with decrypted title and content, along with the rest of the entry fields.
- */
-/**
  * Converts an encrypted journal entry into a safe, decrypted format.
  *
  * Decrypts the `title_encrypted` and `content_encrypted` fields of the provided
@@ -30,7 +23,7 @@ export function toSafeJournalEntry(
     tag: string;
   }) => string): SafeJournalEntry {
   try {
-    const { title_encrypted, content_encrypted, ...rest } = entry;
+    const { title_encrypted, content_encrypted, mood, ...rest } = entry;
     return {
       ...rest,
       title: decrypt(title_encrypted),
