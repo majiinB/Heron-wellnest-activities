@@ -1,5 +1,5 @@
 import type { AuthenticatedRequest } from "../interface/authRequest.interface.js";
-import type { NextFunction, Response} from "express";
+import { response, type NextFunction, type Response} from "express";
 import type { JournalService } from "../services/journal.service.js";
 import type { ApiResponse } from "../types/apiResponse.type.js";
 import { AppError } from "../types/appError.type.js";
@@ -7,6 +7,9 @@ import { validateUser } from "../utils/authorization util.js";
 import type { JournalEntry } from "../models/journalEntry.model.js";
 import type { SafeJournalEntry } from "../types/safeJournalEntry.type.js";
 import type { PaginatedJournalEntries } from "../types/paginatedJournalEtntries.type.js";
+import { v4 as uuidv4, validate as isUuid } from "uuid";
+import { isNumbersOnly, looksLikeNonsense } from "../utils/journal.util.js";
+import { tr } from "zod/locales";
 
 /**
  * Controller class for handling Journal entry-related HTTP requests.
@@ -57,8 +60,11 @@ export class JournalController {
 
     validateUser(userId, userRole, "student");
 
+    const titleTrimmed = title?.toString().trim();
+    const contentTrimmed = content?.toString().trim();
+
     // Validate title and content
-    if (!title || !title.trim() || !content || !content.trim()) {
+    if (!titleTrimmed || !contentTrimmed) {
       throw new AppError(
         400,
         'BAD_REQUEST',
@@ -67,8 +73,8 @@ export class JournalController {
       );
     }
 
-    const titleNum = title.trim().length;
-    const contentNum = content.trim().length;
+    const titleNum = titleTrimmed.length;
+    const contentNum = contentTrimmed.length;
 
     if (titleNum < 5 || titleNum > 100) {
       throw new AppError(
@@ -79,11 +85,29 @@ export class JournalController {
       );
     }
 
+    if(isNumbersOnly(titleTrimmed) || looksLikeNonsense(contentTrimmed)){
+      throw new AppError(
+        400,
+        'BAD_REQUEST',
+        "Bad Request: We encourage meaningful titles. Please provide a valid title.",
+        true
+      );
+    }
+
     if (contentNum < 20 || contentNum > 2000) {
       throw new AppError(
         400,
         'BAD_REQUEST',
         "Bad Request: Content must be between 20 and 2000 characters",
+        true
+      );
+    }
+
+    if(isNumbersOnly(contentTrimmed) || looksLikeNonsense(contentTrimmed)){
+      throw new AppError(
+        400,
+        'BAD_REQUEST',
+        "Bad Request: We encourage meaningful content. Please provide a valid content.",
         true
       );
     }
@@ -153,10 +177,125 @@ export class JournalController {
     const journalId = req.params.id;
 
     validateUser(userId, userRole, "student");
+
+    if (!isUuid(journalId)) {
+      throw new AppError(
+        400,
+        'BAD_REQUEST',
+        "Bad Request: Invalid journal entry ID format",
+        true
+      );
+    }
+
+    const journal: SafeJournalEntry | null = await this.journalService.getEntryById(journalId, userId!);
+
+    if(!journal){
+      throw new AppError(
+        404,
+        'NOT_FOUND',
+        "Journal entry not found",
+        true
+      );
+    }
+
+    const response: ApiResponse = {
+      success: true,
+      code: "JOURNAL_ENTRY_RETRIEVED",
+      message: "Journal entry retrieved successfully",
+      data: journal
+    };
+
+    res.status(200).json(response);
+
     return; 
   }
 
   public async handleJournalEntryUpdate(req: AuthenticatedRequest, res: Response, _next: NextFunction): Promise<void> {
+    // TODO: Implement US
+    const userId = req.user?.sub;
+    const userRole = req.user?.role;
+    const journalId = req.params.id;
+    const { title, content } = req.body || {};
+
+    validateUser(userId, userRole, "student");
+
+    if (!isUuid(journalId)) {
+      throw new AppError(
+        400,
+        'BAD_REQUEST',
+        "Bad Request: Invalid journal entry ID format",
+        true
+      );
+    }
+
+    const titleTrimmed = title?.toString().trim();
+    const contentTrimmed = content?.toString().trim();
+
+    // Validate at least one field
+    if (!titleTrimmed && !contentTrimmed) {
+      throw new AppError(
+        400,
+        'BAD_REQUEST',
+        "Bad Request: At least one of title or content must be provided",
+        true
+      );
+    }
+
+    if (titleTrimmed && (titleTrimmed.length < 5 || titleTrimmed.length > 100)) {
+      throw new AppError(
+        400,
+        'BAD_REQUEST',
+        "Bad Request: Title must be between 5 and 100 characters",
+        true
+      );
+    }
+
+    if(isNumbersOnly(titleTrimmed) || looksLikeNonsense(titleTrimmed)){
+      throw new AppError(
+        400,
+        'BAD_REQUEST',
+        "Bad Request: We encourage meaningful titles. Please provide a valid title.",
+        true
+      );
+    }
+    
+    if (contentTrimmed && (contentTrimmed.length < 20 || contentTrimmed.length > 2000)) {
+      throw new AppError(
+        400,
+        'BAD_REQUEST',
+        "Bad Request: Content must be between 20 and 2000 characters",
+        true
+      );
+    }
+
+    if(isNumbersOnly(contentTrimmed) || looksLikeNonsense(contentTrimmed)){
+      throw new AppError(
+        400,
+        'BAD_REQUEST',
+        "Bad Request: We encourage meaningful content. Please provide a valid content.",
+        true
+      );
+    }
+
+    const journal: SafeJournalEntry | null = await this.journalService.updateEntry(journalId, userId!, titleTrimmed, contentTrimmed);
+
+    if(!journal){
+      throw new AppError(
+        404,
+        'NOT_FOUND',
+        "Journal entry not found",
+        true
+      );
+    }
+
+    const response: ApiResponse = {
+      success: true,
+      code: "JOURNAL_ENTRY_UPDATED",
+      message: "Journal entry updated successfully",
+      data: journal
+    };
+
+    res.status(200).json(response);
     return; 
   }
 

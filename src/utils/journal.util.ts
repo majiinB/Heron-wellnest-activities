@@ -1,5 +1,6 @@
 import type { JournalEntry } from "../models/journalEntry.model.js";
 import { AppError } from "../types/appError.type.js";
+import type { EncryptedField } from "../types/encryptedField.type.js";
 import type { SafeJournalEntry } from "../types/safeJournalEntry.type.js";
 
 /**
@@ -17,11 +18,7 @@ import type { SafeJournalEntry } from "../types/safeJournalEntry.type.js";
  */
 export function toSafeJournalEntry(
   entry: JournalEntry, 
-  decrypt: (field: {
-    iv: string;
-    content: string;
-    tag: string;
-  }) => string): SafeJournalEntry {
+  decrypt: (field: EncryptedField) => string): SafeJournalEntry {
   try {
     const { title_encrypted, content_encrypted, mood, ...rest } = entry;
     return {
@@ -49,10 +46,50 @@ export function toSafeJournalEntry(
  */
 export function toSafeJournalEntries(
   entries: JournalEntry[],
-  decrypt: (field: {
-    iv: string;
-    content: string;
-    tag: string;
-  }) => string): SafeJournalEntry[] {
+  decrypt: (field: EncryptedField) => string): SafeJournalEntry[] {
   return entries.map(e => toSafeJournalEntry(e, decrypt));
+}
+
+/**
+ * 
+ * Basic heuristic to determine if a string looks like nonsense.
+ * 
+ * @param input - The input string to evaluate.
+ * @returns True if the input looks like nonsense, false otherwise.
+ */
+export function looksLikeNonsense(input: string): boolean {
+  const normalized = input.trim().toLowerCase();
+
+  // Empty or too short (already validated elsewhere, but safe)
+  if (normalized.length < 3) return true;
+
+  // Contains at least one letter?
+  if (!/[a-z]/.test(normalized)) return false;
+
+  // No vowels at all (very suspicious in English/Tagalog text)
+  if (!/[aeiou]/.test(normalized)) return true;
+
+  // Keyboard smash style (lots of consecutive consonants)
+  if (/[bcdfghjklmnpqrstvwxyz]{6,}/.test(normalized)) return true;
+
+  // Excessive repetition of same char
+  if (/([a-z])\1{4,}/.test(normalized)) return true;
+
+  return false;
+}
+
+/**
+ * Checks if the input string consists only of numeric characters (0-9).
+ *
+ * @param input - The input string to check.
+ * @returns True if the input contains only numbers, false otherwise.
+ */
+export function isNumbersOnly(input: string): boolean {
+  const trimmed = input.trim();
+
+  // Matches:
+  // - plain digits
+  // - digits with spaces
+  // - numbers in scientific notation (e.g. "1.23e+10")
+  return /^(\d+(\.\d+)?([eE][+-]?\d+)?)$/.test(trimmed.replace(/\s+/g, ""));
 }

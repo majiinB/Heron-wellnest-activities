@@ -109,16 +109,14 @@ export class JournalService {
    * Retrieves a journal entry by its ID, decrypting its content before returning.
    *
    * @param journalId - The unique identifier of the journal entry to retrieve.
+   * @param userId - The unique identifier of the user who owns the journal entry.
    * @returns A promise that resolves to the journal entry with decrypted content, or `null` if not found.
    */
-  public async getEntryById(journalId: string): Promise<JournalEntry | null> {
-    const entry = await this.journalRepo.findById(journalId);
+  public async getEntryById(journalId: string, userId: string): Promise<SafeJournalEntry | null> {
+    const entry = await this.journalRepo.findById(journalId, userId);
     if (!entry) return null;
 
-    return {
-      ...entry,
-      content: decrypt(entry.content_encrypted, this.secret)
-    } as JournalEntry & { content: string };
+    return toSafeJournalEntry(entry, this.decryptField);
   }
 
   /**
@@ -129,23 +127,27 @@ export class JournalService {
    * If no entry is found for the given `journalId`, it returns `null`.
    *
    * @param journalId - The unique identifier of the journal entry to update.
+   * @param userId - The unique identifier of the user who owns the journal entry.
+   * @param title - (Optional) The new title for the journal entry.
    * @param content - (Optional) The new content for the journal entry.
-   * @param mood - (Optional) An object representing mood values to update.
    * @returns A promise that resolves to the updated journal entry with decrypted content, or `null` if not found.
    */
-  public async updateEntry(journalId: string, content?: string, mood?: Record<string, number>) : Promise<JournalEntry | null> {
-    let encryptedContent;
+  public async updateEntry(journalId: string, userId: string, title?: string, content?: string) : Promise<SafeJournalEntry | null> {
+    let encryptedTitle : EncryptedField | undefined;
+    let encryptedContent : EncryptedField | undefined;
+
+    if (title) {
+      encryptedTitle = encrypt(title, this.secret);
+    }
     if (content) {
       encryptedContent = encrypt(content, this.secret);
     }
-    const updatedEntry = await this.journalRepo.updateEntry(journalId, encryptedContent, mood);
+
+    const updatedEntry = await this.journalRepo.updateEntry(journalId, userId, encryptedTitle, encryptedContent);
 
     if (!updatedEntry) return null;
 
-    return {
-      ...updatedEntry,
-      content: content ? content : decrypt(updatedEntry.content_encrypted, this.secret)
-    } as JournalEntry & { content: string };
+    return toSafeJournalEntry(updatedEntry, this.decryptField);
   }
 
   /**
@@ -154,10 +156,11 @@ export class JournalService {
    * Marks the specified journal entry as deleted without permanently removing it from the database.
    *
    * @param journalId - The unique identifier of the journal entry to be soft deleted.
+   * @param userId - The unique identifier of the user who owns the journal entry.
    * @returns A promise that resolves when the operation is complete.
    */
-  public async softDeleteEntry(journalId: string): Promise<void> {
-    this.journalRepo.softDelete(journalId);
+  public async softDeleteEntry(journalId: string, userId: string): Promise<void> {
+    this.journalRepo.softDelete(journalId, userId);
   }
 
   /**
@@ -167,7 +170,7 @@ export class JournalService {
    * @param journalId - The unique identifier of the journal entry to delete.
    * @returns A promise that resolves when the deletion is complete.
    */
-  public async hardDeleteEntry(journalId: string): Promise<void> {
-    this.journalRepo.hardDelete(journalId);
+  public async hardDeleteEntry(journalId: string, userId: string): Promise<void> {
+    this.journalRepo.hardDelete(journalId, userId);
   }
 }

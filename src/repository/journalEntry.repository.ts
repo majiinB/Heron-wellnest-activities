@@ -1,6 +1,7 @@
 import { LessThan, type Repository } from "typeorm";
 import { AppDataSource } from "../config/datasource.config.js";
 import { JournalEntry } from "../models/journalEntry.model.js";
+import type { EncryptedField } from "../types/encryptedField.type.js";
 
 /**
  * Repository class for managing journal entry entities in the database.
@@ -68,11 +69,12 @@ export class JournalEntryRepository {
    * Retrieves a journal entry by its unique identifier, excluding entries marked as deleted.
    *
    * @param journal_id - The unique identifier of the journal entry to retrieve.
+   * @param user_id - The unique identifier of the user who owns the journal entry.
    * @returns A promise that resolves to the journal entry if found and not deleted, otherwise `null`.
    */
-  async findById(journal_id: string): Promise<JournalEntry | null> {
+  async findById(journal_id: string, user_id: string): Promise<JournalEntry | null> {
     return await this.repo.findOne({
-      where: { journal_id, is_deleted: false },
+      where: { journal_id, user_id, is_deleted: false },
     });
   }
 
@@ -109,24 +111,22 @@ export class JournalEntryRepository {
    * Updates a journal entry with new encrypted content and/or mood values.
    *
    * @param journal_id - The unique identifier of the journal entry to update.
+   * @param user_id - The unique identifier of the user who owns the journal entry.
+   * @param title_encrypted - (Optional) The new encrypted title for the journal entry.
    * @param content_encrypted - (Optional) The new encrypted content for the journal entry.
-   * @param mood - (Optional) An object representing mood values to update for the journal entry.
    * @returns The updated journal entry if found, otherwise `null`.
    */
   async updateEntry(
     journal_id: string, 
-    content_encrypted?: {
-      iv: string;
-      content: string;
-      tag: string;
-    }, 
-    mood?: Record<string, number>
+    user_id: string,
+    title_encrypted?: EncryptedField,
+    content_encrypted?: EncryptedField, 
   ): Promise <JournalEntry | null> {
-    const entry = await this.findById(journal_id);
+    const entry = await this.findById(journal_id, user_id);
     if (!entry) return null;
 
-    if (content_encrypted !== undefined) entry.content_encrypted = content_encrypted;
-    if (mood !== undefined) entry.mood = mood;
+    if (title_encrypted) entry.title_encrypted = title_encrypted;
+    if (content_encrypted) entry.content_encrypted = content_encrypted;
 
     return await this.repo.save(entry);
   }
@@ -136,10 +136,11 @@ export class JournalEntryRepository {
    * Performs a soft delete, preserving the entry in the database.
    *
    * @param journal_id - The unique identifier of the journal entry to be soft deleted.
+   * @param user_id - The unique identifier of the user who owns the journal entry.
    * @returns The updated journal entry with `is_deleted` set to `true`, or `null` if the entry does not exist.
    */
-  async softDelete(journal_id: string): Promise<JournalEntry | null> {
-    const entry = await this.findById(journal_id);
+  async softDelete(journal_id: string, user_id: string): Promise<JournalEntry | null> {
+    const entry = await this.findById(journal_id, user_id);
     if (!entry) return null;
 
     entry.is_deleted = true;
@@ -150,10 +151,11 @@ export class JournalEntryRepository {
    * Permanently deletes a journal entry from the repository by its ID.
    *
    * @param journal_id - The unique identifier of the journal entry to delete.
+   * @param user_id - The unique identifier of the user who owns the journal entry.
    * @returns A promise that resolves with the result of the delete operation.
    */
-  async hardDelete(journal_id: string): Promise<void> {
-    await this.repo.delete(journal_id);
+  async hardDelete(journal_id: string, user_id: string): Promise<void> {
+    await this.repo.delete({journal_id, user_id});
   }
 
   /**
