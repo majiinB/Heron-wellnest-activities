@@ -148,6 +148,11 @@ export class JournalController {
   }
 
   public async handleSpecificJournalEntryRetrieval(req: AuthenticatedRequest, res: Response, _next: NextFunction): Promise<void> {
+    const userId = req.user?.sub;
+    const userRole = req.user?.role;
+    const journalId = req.params.id;
+
+    validateUser(userId, userRole, "student");
     return; 
   }
 
