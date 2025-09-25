@@ -1,4 +1,5 @@
 import { Column, CreateDateColumn, Entity, Index, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import type { EncryptedField } from "../types/encryptedField.type.js";
 
 /**
  * @file journalEntry.model.ts
@@ -7,7 +8,7 @@ import { Column, CreateDateColumn, Entity, Index, PrimaryGeneratedColumn, Update
  * 
  * @author Arthur M. Artugue
  * @created 2025-09-21
- * @updated 2025-09-21
+ * @updated 2025-09-25
  */
 
 @Entity("journal_entries")
@@ -19,18 +20,10 @@ export class JournalEntry {
   user_id!: string;
 
   @Column({ type: "jsonb" })
-  title_encrypted!: {
-    iv: string;
-    content: string;
-    tag: string;
-  };
+  title_encrypted!: EncryptedField;
 
   @Column({ type: "jsonb" })
-  content_encrypted!: {
-    iv: string;
-    content: string;
-    tag: string;
-  };
+  content_encrypted!: EncryptedField;
 
   @Column({ type: "jsonb", nullable: true })
   mood!: Record<string, number>;

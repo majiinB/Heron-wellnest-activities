@@ -1,5 +1,6 @@
 import crypto from "crypto";
 import { env } from "../config/env.config.js";
+import type { EncryptedField } from "../types/encryptedField.type.js";
 
 const ALGORITHM: "aes-256-gcm" = env.CONTENT_ENCRYPTION_ALGORITHM;
 const IV_LENGTH: number = env.CONTENT_ENCRYPTION_IV_LENGTH
@@ -21,7 +22,7 @@ function isValidHexKey(secret: string): boolean {
  * @param secret - Secret key (from env, e.g. CONTENT_ENCRYPTION_KEY)
  * @returns {Object} { iv, content, tag }
  */
-export function encrypt(text: string, secret: string) {
+export function encrypt(text: string, secret: string): EncryptedField {
   const iv = crypto.randomBytes(IV_LENGTH);
 
   // Decide how to build the key
@@ -35,11 +36,11 @@ export function encrypt(text: string, secret: string) {
 
   const authTag = cipher.getAuthTag().toString("hex");
 
-  return {
+  return { 
     iv: iv.toString("hex"),
     content: encrypted,
     tag: authTag,
-  };
+  } as EncryptedField;
 }
 
 /**
@@ -64,7 +65,7 @@ export function decrypt(
   );
   decipher.setAuthTag(Buffer.from(encrypted.tag, "hex"));
 
-  let decrypted = decipher.update(encrypted.content, "hex", "utf8");
+  let decrypted: string = decipher.update(encrypted.content, "hex", "utf8");
   decrypted += decipher.final("utf8");
   return decrypted;
 }

@@ -2,7 +2,9 @@ import { env } from "../config/env.config.js";
 import { JournalEntry } from "../models/journalEntry.model.js";
 import type { JournalEntryRepository } from "../repository/journalEntry.repository.js";
 import type { ApiResponse } from "../types/apiResponse.type.js";
+import type { SafeJournalEntry } from "../types/safeJournalEntry.type.js";
 import { decrypt, encrypt } from "../utils/crypto.util.js";
+import { toSafeJournalEntries, toSafeJournalEntry } from "../utils/journal.util.js";
 
 /**
  * Service class for managing Journal entries.
@@ -33,6 +35,12 @@ import { decrypt, encrypt } from "../utils/crypto.util.js";
 export class JournalService {
   private journalRepo : JournalEntryRepository;
   private secret: string;
+  private readonly decryptField = (field: {
+    iv: string;
+    content: string;
+    tag: string;
+  }) => decrypt(field, this.secret);
+
 
   /**
    * Creates an instance of the JournalService.
@@ -56,19 +64,15 @@ export class JournalService {
    * @param content - The plain text content of the journal entry.
    * @returns A promise that resolves to the newly created `JournalEntry`.
    */
-  public async createEntry(userId: string, title: string, content: string): Promise<Omit<JournalEntry, "title_encrypted" | "content_encrypted" | "mood">> {
+  public async createEntry(userId: string, title: string, content: string): Promise<SafeJournalEntry> {
 
     const encryptedContent = encrypt(content, this.secret);
     const encryptedTitle = encrypt(title, this.secret);
 
     const entry : JournalEntry = await this.journalRepo.createEntry(userId, encryptedTitle, encryptedContent);
-    const { title_encrypted, content_encrypted, mood, ...rest } = entry;
+    
 
-    return {
-      ...rest,
-      title: decrypt(entry.title_encrypted, this.secret),
-      content: decrypt(entry.content_encrypted, this.secret)
-    } as Omit<JournalEntry, "title_encrypted" | "content_encrypted"> & { title: string; content: string };
+    return toSafeJournalEntry(entry, this.decryptField);
 
     // TODO: Send event to message broker
   }
@@ -86,13 +90,10 @@ export class JournalService {
     userId: string,
     limit: number = 10,
     lastEntryId?: string
-  ) : Promise<JournalEntry[]> {
-    const entries = await this.journalRepo.findByUserAfterId(userId, lastEntryId, limit);
+  ) : Promise<SafeJournalEntry[]> {
+    const entries : JournalEntry[] = await this.journalRepo.findByUserAfterId(userId, lastEntryId, limit);
 
-    return entries.map(entry => ({
-      ...entry,
-      content: decrypt(entry.content_encrypted, this.secret)
-    }) as JournalEntry & { content: string });
+    return toSafeJournalEntries(entries, this.decryptField);
   }
 
   /**
