@@ -269,6 +269,123 @@ router.post('/', heronAuthMiddleware, asyncHandler(journalController.handleJourn
  */
 router.get('/', heronAuthMiddleware, asyncHandler(journalController.handleJournalEntryRetrieval.bind(journalController)));
 
+/**
+ * @openapi
+ * /api/v1/activities/mind-mirror/{id}:
+ *   get:
+ *     summary: Retrieve a specific journal entry
+ *     description: Retrieves a single journal entry for the authenticated student by its ID, including decrypted title, content, and optional mood.
+ *     tags:
+ *       - Journal / Mind Mirror
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - name: id
+ *         in: path
+ *         required: true
+ *         description: UUID of the journal entry to retrieve
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *     responses:
+ *       "200":
+ *         description: Journal entry retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 code:
+ *                   type: string
+ *                   example: JOURNAL_ENTRY_RETRIEVED
+ *                 message:
+ *                   type: string
+ *                   example: Journal entry retrieved successfully
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     journal_id:
+ *                       type: string
+ *                       format: uuid
+ *                     user_id:
+ *                       type: string
+ *                       format: uuid
+ *                     created_at:
+ *                       type: string
+ *                       format: date-time
+ *                     updated_at:
+ *                       type: string
+ *                       format: date-time
+ *                     is_deleted:
+ *                       type: boolean
+ *                     title:
+ *                       type: string
+ *                     content:
+ *                       type: string
+ *       "400":
+ *         description: Bad request - invalid journal entry ID format
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *             examples:
+ *               invalidId:
+ *                 value:
+ *                   success: false
+ *                   code: BAD_REQUEST
+ *                   message: "Bad Request: Invalid journal entry ID format"
+ *       "401":
+ *         description: Unauthorized - missing or invalid token
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *             examples:
+ *               unauthorized:
+ *                 value:
+ *                   success: false
+ *                   code: "UNAUTHORIZED / AUTH_NO_TOKEN"
+ *                   message: "Unauthorized: User ID missing / no token provided"
+ *       "403":
+ *         description: Forbidden - insufficient permissions
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *             examples:
+ *               forbidden:
+ *                 value:
+ *                   success: false
+ *                   code: FORBIDDEN
+ *                   message: "Forbidden: Insufficient permissions / Forbidden: student role required"
+ *       "404":
+ *         description: Journal entry not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *             examples:
+ *               notFound:
+ *                 value:
+ *                   success: false
+ *                   code: NOT_FOUND
+ *                   message: "Journal entry not found"
+ *       "500":
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *             examples:
+ *               serverError:
+ *                 value:
+ *                   success: false
+ *                   code: INTERNAL_SERVER_ERROR
+ *                   message: Internal server error
+ */
 router.get('/:id', heronAuthMiddleware, asyncHandler(journalController.handleSpecificJournalEntryRetrieval.bind(journalController)));
 
 router.put('/:id', heronAuthMiddleware, asyncHandler(journalController.handleJournalEntryUpdate.bind(journalController)));

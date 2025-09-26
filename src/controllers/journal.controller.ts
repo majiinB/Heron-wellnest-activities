@@ -300,6 +300,22 @@ export class JournalController {
   }
 
   public async handleJournalEntryDelete(req: AuthenticatedRequest, res: Response, _next: NextFunction): Promise<void> {
+    const userId = req.user?.sub;
+    const userRole = req.user?.role;
+    const journalId = req.params.id;
+
+    validateUser(userId, userRole, "student");
+
+    if (!isUuid(journalId)) {
+      throw new AppError(
+        400,
+        'BAD_REQUEST',
+        "Bad Request: Invalid journal entry ID format",
+        true
+      );
+    }
+
+    const deleted = await this.journalService.softDeleteEntry(journalId, userId!);
     return; 
   }
 }
