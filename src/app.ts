@@ -48,6 +48,20 @@ const swaggerOptions = {
         url: `http://localhost:${env.PORT}/api/v1/activities`, // adjust your base URL
       },
     ],
+    components: {
+      securitySchemes: {
+        bearerAuth: {
+          type: 'http',
+          scheme: 'bearer',
+          bearerFormat: 'JWT',
+        },
+      },
+    },
+    security: [
+      {
+        bearerAuth: [],
+      },
+    ],
   },
   apis: ['./src/routes/**/*.ts'], // 👈 path to your route files with @openapi JSDoc comments
 };

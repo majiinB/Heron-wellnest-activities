@@ -211,7 +211,6 @@ export class JournalController {
   }
 
   public async handleJournalEntryUpdate(req: AuthenticatedRequest, res: Response, _next: NextFunction): Promise<void> {
-    // TODO: Implement US
     const userId = req.user?.sub;
     const userRole = req.user?.role;
     const journalId = req.params.id;
@@ -316,6 +315,23 @@ export class JournalController {
     }
 
     const deleted = await this.journalService.softDeleteEntry(journalId, userId!);
+
+    if(!deleted){
+      throw new AppError(
+        404,
+        'NOT_FOUND',
+        "Journal entry not found",
+        true
+      );
+    }
+
+    const response: ApiResponse = {
+      success: true,
+      code: "JOURNAL_ENTRY_DELETED",
+      message: "Journal entry deleted successfully",
+    };
+
+    res.status(200).json(response);
     return; 
   }
 }

@@ -159,8 +159,11 @@ export class JournalService {
    * @param userId - The unique identifier of the user who owns the journal entry.
    * @returns A promise that resolves when the operation is complete.
    */
-  public async softDeleteEntry(journalId: string, userId: string): Promise<void> {
-    this.journalRepo.softDelete(journalId, userId);
+  public async softDeleteEntry(journalId: string, userId: string): Promise<boolean> {
+
+    const entry = await this.journalRepo.softDelete(journalId, userId);
+
+    return entry !== null;
   }
 
   /**

@@ -40,7 +40,7 @@ export const corsOptions: CorsOptions = {
       callback(new Error("Not allowed by CORS"), false);
     }
   },
-  methods: ["GET","POST"],
+  methods: ["GET","POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
   credentials: true,
   optionsSuccessStatus: 204,
 };
