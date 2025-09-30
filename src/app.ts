@@ -45,7 +45,7 @@ const swaggerOptions = {
     },
     servers: [
       {
-        url: `http://localhost:${env.PORT}/api/v1/activities`, // adjust your base URL
+        url: `http://localhost:${env.PORT}/api/v1/activities`, 
       },
     ],
     components: {
