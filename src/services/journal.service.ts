@@ -7,6 +7,7 @@ import type { PaginatedJournalEntries } from "../types/paginatedJournalEtntries.
 import type { SafeJournalEntry } from "../types/safeJournalEntry.type.js";
 import { decrypt, encrypt } from "../utils/crypto.util.js";
 import { toSafeJournalEntries, toSafeJournalEntry } from "../utils/journal.util.js";
+import { publishMessage } from "../utils/pubsub.util.js";
 
 /**
  * Service class for managing Journal entries.
@@ -68,11 +69,16 @@ export class JournalService {
     const encryptedTitle = encrypt(title, this.secret);
 
     const entry : JournalEntry = await this.journalRepo.createEntry(userId, encryptedTitle, encryptedContent);
-    
+
+    await publishMessage(env.PUBSUB_JOURNAL_TOPIC, {
+      eventType: 'JOURNAL_ENTRY_CREATED',
+      userId,
+      journalId: entry.journal_id,
+      timestamp: new Date().toISOString(),
+    });
 
     return toSafeJournalEntry(entry, this.decryptField);
 
-    // TODO: Send event to message broker
   }
 
   /**
@@ -146,6 +152,13 @@ export class JournalService {
     const updatedEntry = await this.journalRepo.updateEntry(journalId, userId, encryptedTitle, encryptedContent);
 
     if (!updatedEntry) return null;
+
+    await publishMessage(env.PUBSUB_JOURNAL_TOPIC, {
+      eventType: 'JOURNAL_ENTRY_UPDATED',
+      userId,
+      journalId: updatedEntry.journal_id,
+      timestamp: new Date().toISOString(),
+    });
 
     return toSafeJournalEntry(updatedEntry, this.decryptField);
   }

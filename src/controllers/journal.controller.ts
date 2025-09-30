@@ -249,7 +249,7 @@ export class JournalController {
       );
     }
 
-    if(isNumbersOnly(titleTrimmed) || looksLikeNonsense(titleTrimmed)){
+    if(titleTrimmed && (isNumbersOnly(titleTrimmed) || looksLikeNonsense(titleTrimmed))){
       throw new AppError(
         400,
         'BAD_REQUEST',
@@ -267,7 +267,7 @@ export class JournalController {
       );
     }
 
-    if(isNumbersOnly(contentTrimmed) || looksLikeNonsense(contentTrimmed)){
+    if(contentTrimmed && (isNumbersOnly(contentTrimmed) || looksLikeNonsense(contentTrimmed))){
       throw new AppError(
         400,
         'BAD_REQUEST',
