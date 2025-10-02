@@ -2,6 +2,7 @@ import { LessThan, type Repository } from "typeorm";
 import { AppDataSource } from "../config/datasource.config.js";
 import { GratitudeEntry } from "../models/gratitudeEntry.model.js";
 import type { EncryptedField } from "../types/encryptedField.type.js";
+import { AppError } from "../types/appError.type.js";
 
 /**
  * Repository class for managing GratitudeEntry entities.
@@ -44,7 +45,7 @@ export class GratitudeEntryRepository {
   async createEntry(
     user_id: string, 
     content_encrypted: EncryptedField
-  ) {
+  ): Promise<GratitudeEntry> {
     const entry = this.repo.create({
       user_id,
       content_encrypted,
@@ -56,11 +57,12 @@ export class GratitudeEntryRepository {
    * Retrieves a Gratitude jar entry by its unique identifier, excluding entries marked as deleted.
    *
    * @param gratitude_id - The unique identifier of the Gratitude jar entry to retrieve.
+   * @param user_id - The unique identifier of the user who owns the entry.
    * @returns A promise that resolves to the Gratitude jar entry if found and not deleted, otherwise `null`.
    */
-  async findById(gratitude_id: string) {
+  async findById(gratitude_id: string, user_id: string): Promise<GratitudeEntry | null> {
     return await this.repo.findOne({
-      where: { gratitude_id, is_deleted: false },
+      where: { gratitude_id, is_deleted: false, user_id },
     });
   }
 
@@ -76,14 +78,19 @@ export class GratitudeEntryRepository {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let where: any = { user_id, is_deleted: false };
 
+    
     if (lastEntryId) {
       const lastEntry = await this.repo.findOne({ where: { gratitude_id: lastEntryId } });
-      if (lastEntry) {
-        where = [
-          { user_id, is_deleted: false, created_at: LessThan(lastEntry.created_at) },
-          { user_id, is_deleted: false, created_at: lastEntry.created_at, gratitude_id: LessThan(lastEntry.gratitude_id) }
-        ];
+
+      if (!lastEntry) {
+        throw new AppError(400, "INVALID_CURSOR", "The provided cursor is invalid.", true);
       }
+
+      where = [
+        { user_id, is_deleted: false, created_at: LessThan(lastEntry.created_at) },
+        { user_id, is_deleted: false, created_at: lastEntry.created_at, gratitude_id: LessThan(lastEntry.gratitude_id) }
+      ];
+      
     }
 
     return this.repo.find({
@@ -97,22 +104,20 @@ export class GratitudeEntryRepository {
    * Updates a gratitude jar entry with new encrypted content.
    *
    * @param gratitude_id - The unique identifier of the gratitude jar entry to update.
-   * @param content_encrypted - (Optional) The new encrypted content for the gratitude jar entry.
+   * @param user_id - The unique identifier of the user who owns the entry.
+   * @param content_encrypted - The new encrypted content for the gratitude jar entry.
    * @returns The updated gratitude jar entry if found, otherwise `null`.
    */
   async updateEntry(
     gratitude_id: string, 
-    content_encrypted: {
-      iv: string;
-      content: string;
-      tag: string;
-    }
-  ) {
-    const entry = await this.findById(gratitude_id);
-    if (!entry) return null;
+    user_id: string,
+    content_encrypted: EncryptedField
+  ): Promise<GratitudeEntry> {
+    const entry = await this.findById(gratitude_id, user_id);
 
-    if (content_encrypted !== undefined) entry.content_encrypted = content_encrypted;
+    if (!entry) throw new AppError(404, "NOT_FOUND", "Gratitude entry not found.", true);
 
+    entry.content_encrypted = content_encrypted;
     return await this.repo.save(entry);
   }
 
@@ -121,11 +126,13 @@ export class GratitudeEntryRepository {
    * Performs a soft delete, preserving the entry in the database.
    *
    * @param gratitude_id - The unique identifier of the gratitude jar entry to be soft deleted.
-   * @returns The updated gartitude jar entry with `is_deleted` set to `true`, or `null` if the entry does not exist.
+   * @param user_id - The unique identifier of the user who owns the entry.
+   * @returns The updated gratitude jar entry with `is_deleted` set to `true`, or `null` if the entry does not exist.
    */
-  async softDelete(gratitude_id: string) {
-    const entry = await this.findById(gratitude_id);
-    if (!entry) return null;
+  async softDelete(gratitude_id: string, user_id: string): Promise<GratitudeEntry> {
+    const entry = await this.findById(gratitude_id, user_id);
+
+    if (!entry) throw new AppError(404, "NOT_FOUND", "Gratitude entry not found.", true);
 
     entry.is_deleted = true;
     return await this.repo.save(entry);
@@ -137,8 +144,8 @@ export class GratitudeEntryRepository {
    * @param gratitude_id - The unique identifier of the gratitude jar entry to delete.
    * @returns A promise that resolves with the result of the delete operation.
    */
-  async hardDelete(gratitude_id: string) {
-    return await this.repo.delete(gratitude_id);
+  async hardDelete(gratitude_id: string): Promise<void> {
+    await this.repo.delete(gratitude_id);
   }
 
   /**
@@ -147,7 +154,7 @@ export class GratitudeEntryRepository {
    * @param user_id - The unique identifier of the user whose latest gratitude jar entry is to be fetched.
    * @returns A promise that resolves to the most recent gratitude jar entry for the user, or `null` if none exists.
    */
-  async findLatestByUser(user_id: string) {
+  async findLatestByUser(user_id: string): Promise<GratitudeEntry | null> {
     return await this.repo.findOne({
       where: { user_id, is_deleted: false },
       order: { created_at: "DESC" },
@@ -160,7 +167,7 @@ export class GratitudeEntryRepository {
    * @param user_id - The unique identifier of the user whose gratitude jar entries are to be counted.
    * @returns A promise that resolves to the count of non-deleted gratitude jar entries for the specified user.
    */
-  async countByUser(user_id: string) {
+  async countByUser(user_id: string): Promise<number> {
     return await this.repo.count({
       where: { user_id, is_deleted: false },
     });

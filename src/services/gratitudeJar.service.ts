@@ -2,9 +2,10 @@ import { env } from "../config/env.config.js";
 import type { GratitudeEntry } from "../models/gratitudeEntry.model.js";
 import type { GratitudeEntryRepository } from "../repository/gratitudeEntry.repository.js";
 import type { EncryptedField } from "../types/encryptedField.type.js";
+import type { PaginatedSafeGratitudeJarEntries } from "../types/paginatedGratitudeJarEntries.type.js";
 import type { SafeGratitudeJarEntry } from "../types/safeGratitudeJarEntry.type.js";
 import { encrypt, decrypt } from "../utils/crypto.util.js";
-import { toSafeGratitudeJarEntry } from "../utils/gratitudeJar.utils.js";
+import { toSafeGratitudeJarEntries, toSafeGratitudeJarEntry } from "../utils/gratitudeJar.utils.js";
 
 /**
  * Service class for managing Gratitude Jar entries.
@@ -67,18 +68,32 @@ export class GratitudeJarService {
 
   /**
    * Retrieves all gratitude entries for a specific user, decrypting the content of each entry.
+   * Supports pagination using cursor-based pagination with lastEntryId.
    *
    * @param userId - The unique identifier of the user whose gratitude entries are to be fetched.
-   * @returns A promise that resolves to an array of `GratitudeEntry` objects with decrypted content.
+   * @param limit - (Optional) The maximum number of entries to retrieve. Defaults to 10.
+   * @param lastEntryId - (Optional) The ID of the last gratitude entry from the previous page, used for pagination.
+   * @returns A promise that resolves to a paginated object containing decrypted gratitude entries and pagination info.
    */
   public async getEntriesByUser(
     userId: string,
-  ) : Promise<SafeGratitudeJarEntry[]> {
-    const entries = await this.gratitudeRepo.findByUserAfterId(userId);
-    return entries.map(entry => ({
-      ...entry,
-      content: entry.content_encrypted ? decrypt(entry.content_encrypted, this.secret) : ''
-    }) as GratitudeEntry & { content: string });
+    limit: number = 10,
+    lastEntryId?: string
+  ): Promise<PaginatedSafeGratitudeJarEntries> {
+    const fetchLimit: number = limit + 1; // Fetch one extra to check if there's more
+
+    const entries = await this.gratitudeRepo.findByUserAfterId(userId, lastEntryId, fetchLimit);
+
+    const hasMore = entries.length > limit;
+
+    // If more, remove the extra entry
+    const slicedEntries = hasMore ? entries.slice(0, limit) : entries;
+
+    return {
+      entries: toSafeGratitudeJarEntries(slicedEntries, this.decryptField),
+      hasMore,
+      nextCursor: hasMore ? slicedEntries[slicedEntries.length - 1].gratitude_id : undefined,
+    };
   }
 
   /**
@@ -88,16 +103,15 @@ export class GratitudeJarService {
    * and returned as the `content` property. If the entry does not exist, returns `null`.
    *
    * @param gratitudeId - The unique identifier of the gratitude entry to retrieve.
+   * @param userId - The unique identifier of the user who owns the entry.
    * @returns A promise that resolves to the gratitude entry with decrypted content, or `null` if not found.
    */
-  public async getEntryById(gratitudeId: string): Promise<GratitudeEntry | null> {
-    const entry = await this.gratitudeRepo.findById(gratitudeId);
+  public async getEntryById(gratitudeId: string, userId: string): Promise<SafeGratitudeJarEntry | null> {
+    const entry = await this.gratitudeRepo.findById(gratitudeId, userId);
+
     if (!entry) return null;
 
-    return {
-      ...entry,
-      content: entry.content_encrypted ? decrypt(entry.content_encrypted, this.secret) : ''
-    } as GratitudeEntry & { content: string };
+    return toSafeGratitudeJarEntry(entry, this.decryptField);
   }
 
   /**
@@ -106,21 +120,17 @@ export class GratitudeJarService {
    * Returns the updated entry with decrypted content, or `null` if the entry does not exist.
    *
    * @param gratitudeId - The unique identifier of the gratitude entry to update.
+   * @param userId - The unique identifier of the user who owns the entry.
    * @param content - The new content to store in the entry.
    * @returns A promise that resolves to the updated `GratitudeEntry` with decrypted content, or `null` if not found.
    */
-  public async updateEntry(gratitudeId: string, content: string) : Promise<GratitudeEntry | null> {
+  public async updateEntry(gratitudeId: string, userId: string, content: string) : Promise<SafeGratitudeJarEntry> {
     
     const encryptedContent = encrypt(content, this.secret);
 
-    const updatedEntry = await this.gratitudeRepo.updateEntry(gratitudeId, encryptedContent);
+    const updatedEntry = await this.gratitudeRepo.updateEntry(gratitudeId, userId, encryptedContent);
 
-    if (!updatedEntry) return null;
-
-    return {
-      ...updatedEntry,
-      content: content ? content : decrypt(updatedEntry.content_encrypted, this.secret)
-    } as GratitudeEntry & { content: string };
+    return toSafeGratitudeJarEntry(updatedEntry, this.decryptField);
   }
 
   /**
@@ -129,10 +139,13 @@ export class GratitudeJarService {
    * Marks the entry as deleted without permanently removing it from the database.
    *
    * @param gratitudeId - The unique identifier of the gratitude entry to be soft deleted.
+   * @param userId - The unique identifier of the user who owns the entry.
    * @returns A promise that resolves when the operation is complete.
    */
-  public async softDeleteEntry(gratitudeId: string) : Promise<void> {
-    this.gratitudeRepo.softDelete(gratitudeId);
+  public async softDeleteEntry(gratitudeId: string, userId: string) : Promise<SafeGratitudeJarEntry | null> {
+    const deleted = await this.gratitudeRepo.softDelete(gratitudeId, userId);
+    if (!deleted) return null;
+    return toSafeGratitudeJarEntry(deleted, this.decryptField);
   }
 
   /**
@@ -142,6 +155,6 @@ export class GratitudeJarService {
    * @returns A promise that resolves when the entry has been deleted.
    */
   public async hardDeleteEntry(gratitudeId: string) : Promise<void> {
-    this.gratitudeRepo.hardDelete(gratitudeId);
+    await this.gratitudeRepo.hardDelete(gratitudeId);
   }
 }
