@@ -30,6 +30,7 @@ import {corsOptions} from './config/cors.config.js';
 import { loggerMiddleware } from './middlewares/logger.middleware.js';
 import { errorMiddleware } from './middlewares/error.middleware.js';
 import journalRoute from './routes/journal.routes.js'
+import moodCheckInRoute from './routes/moodCheckIn.route.js';
 import { env } from './config/env.config.js';
 
 const app : express.Express = express();
@@ -80,6 +81,7 @@ app.get('/api/v1/activities/health', (_req, res) => {
   res.status(200).json({ status: 'ok' });
 });
 app.use('/api/v1/activities/mind-mirror', journalRoute);
+app.use('/api/v1/activities/mood-check-in', moodCheckInRoute);
 
 app.use(errorMiddleware); // Custom error handling middleware
 
