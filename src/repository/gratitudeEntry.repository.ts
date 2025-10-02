@@ -1,6 +1,7 @@
-import type { Repository } from "typeorm";
+import { LessThan, type Repository } from "typeorm";
 import { AppDataSource } from "../config/datasource.config.js";
 import { GratitudeEntry } from "../models/gratitudeEntry.model.js";
+import type { EncryptedField } from "../types/encryptedField.type.js";
 
 /**
  * Repository class for managing GratitudeEntry entities.
@@ -42,11 +43,7 @@ export class GratitudeEntryRepository {
    */
   async createEntry(
     user_id: string, 
-    content_encrypted: {
-      iv: string;
-      content: string;
-      tag: string;
-    }
+    content_encrypted: EncryptedField
   ) {
     const entry = this.repo.create({
       user_id,
@@ -68,15 +65,31 @@ export class GratitudeEntryRepository {
   }
 
   /**
-   * Retrieves all gratitude jar entries for a specific user that have not been deleted.
-   *
-   * @param user_id - The unique identifier of the user whose gratitude jar entries are to be fetched.
-   * @returns A promise that resolves to an array of gratitude jar entries, ordered by creation date in descending order.
-   */
-  async findByUser(user_id: string) {
-    return await this.repo.find({
-      where: { user_id, is_deleted: false },
-      order: { created_at: "DESC" },
+ * Retrieves all gratitude jar entries for a specific user that have not been deleted.
+ *
+ * @param user_id - The unique identifier of the user whose gratitude jar entries are to be fetched.
+ * @param lastEntryId - (Optional) The ID of the last gratitude entry from the previous page, used for pagination.
+ * @param limit - (Optional) The maximum number of entries to retrieve. Defaults to 10.
+ * @returns A promise that resolves to an array of gratitude jar entries, ordered by creation date in descending order.
+ */
+  async findByUserAfterId(user_id: string, lastEntryId?: string, limit: number = 10): Promise<GratitudeEntry[]> {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let where: any = { user_id, is_deleted: false };
+
+    if (lastEntryId) {
+      const lastEntry = await this.repo.findOne({ where: { gratitude_id: lastEntryId } });
+      if (lastEntry) {
+        where = [
+          { user_id, is_deleted: false, created_at: LessThan(lastEntry.created_at) },
+          { user_id, is_deleted: false, created_at: lastEntry.created_at, gratitude_id: LessThan(lastEntry.gratitude_id) }
+        ];
+      }
+    }
+
+    return this.repo.find({
+      where,
+      order: { created_at: "DESC", gratitude_id: "DESC" },
+      take: limit,
     });
   }
 

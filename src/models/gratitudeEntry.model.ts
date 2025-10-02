@@ -1,4 +1,5 @@
 import { Column, CreateDateColumn, Entity, Index, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import type { EncryptedField } from "../types/encryptedField.type.js";
 
 /**
  * @file gratitudeEntry.model.ts
@@ -7,7 +8,7 @@ import { Column, CreateDateColumn, Entity, Index, PrimaryGeneratedColumn, Update
  * 
  * @author Arthur M. Artugue
  * @created 2025-09-21
- * @updated 2025-09-21
+ * @updated 2025-10-02
  */
 
 @Entity("gratitude_entries")
@@ -19,11 +20,7 @@ export class GratitudeEntry {
   user_id!: string;
 
   @Column({ type: "jsonb" })
-  content_encrypted!: {
-    iv: string;
-    content: string;
-    tag: string;
-  };
+  content_encrypted!: EncryptedField;
 
   @CreateDateColumn({ type: "timestamptz" })
   created_at!: Date;

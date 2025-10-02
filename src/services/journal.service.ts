@@ -82,22 +82,24 @@ export class JournalService {
   }
 
   /**
-   * Retrieves a list of journal entries for a specific user, optionally paginated by the last entry ID.
-   * Decrypts the content of each entry before returning.
-   *
-   * @param userId - The unique identifier of the user whose journal entries are to be retrieved.
-   * @param limit - The maximum number of entries to return. Defaults to 10.
-   * @param lastEntryId - (Optional) The ID of the last entry from the previous page, used for pagination.
-   * @returns A promise that resolves to an array of decrypted journal entries for the user.
-   */
+ * Retrieves a list of journal entries for a specific user, optionally paginated by the last entry ID.
+ * Decrypts the content of each entry before returning.
+ *
+ * @param userId - The unique identifier of the user whose journal entries are to be retrieved.
+ * @param limit - The maximum number of entries to return. Defaults to 10.
+ * @param lastEntryId - (Optional) The ID of the last entry from the previous page, used for pagination.
+ * @param timeFilter - (Optional) Filter entries by time period: 'today', 'yesterday', 'this_week', 'last_week'. Defaults to 'all'.
+ * @returns A promise that resolves to an array of decrypted journal entries for the user.
+ */
   public async getEntriesByUser(
     userId: string,
     limit: number = 10,
-    lastEntryId?: string
+    lastEntryId?: string,
+    timeFilter: 'today' | 'yesterday' | 'this_week' | 'last_week' | 'all' = 'all'
   ) : Promise<PaginatedJournalEntries> {
     const fetchLimit: number = limit + 1; // Fetch one extra to check if there's more
 
-    const entries : JournalEntry[] = await this.journalRepo.findByUserAfterId(userId, lastEntryId, fetchLimit);
+    const entries : JournalEntry[] = await this.journalRepo.findByUserAfterId(userId, lastEntryId, fetchLimit, timeFilter);
 
     const hasMore = entries.length > limit;
 

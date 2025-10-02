@@ -1,7 +1,10 @@
 import { env } from "../config/env.config.js";
 import type { GratitudeEntry } from "../models/gratitudeEntry.model.js";
 import type { GratitudeEntryRepository } from "../repository/gratitudeEntry.repository.js";
+import type { EncryptedField } from "../types/encryptedField.type.js";
+import type { SafeGratitudeJarEntry } from "../types/safeGratitudeJarEntry.type.js";
 import { encrypt, decrypt } from "../utils/crypto.util.js";
+import { toSafeGratitudeJarEntry } from "../utils/gratitudeJar.utils.js";
 
 /**
  * Service class for managing Gratitude Jar entries.
@@ -32,6 +35,7 @@ import { encrypt, decrypt } from "../utils/crypto.util.js";
 export class GratitudeJarService {
   private gratitudeRepo : GratitudeEntryRepository;
   private secret: string;
+  private readonly decryptField = (field: EncryptedField) => decrypt(field, this.secret);
 
   /**
    * Creates an instance of the GratitudeJar service.
@@ -53,12 +57,12 @@ export class GratitudeJarService {
    * @param content - The gratitude content to be encrypted and stored.
    * @returns A promise that resolves to the newly created `GratitudeEntry`.
    */
-  public async addEntry(userId: string, content: string): Promise<GratitudeEntry> {
+  public async addEntry(userId: string, content: string): Promise<SafeGratitudeJarEntry> {
     const encryptedContent = encrypt(content, this.secret);
-    
-    return this.gratitudeRepo.createEntry(userId, encryptedContent);
 
-    // TODO: Send event to message broker
+    const createdGratitudeEntry = await this.gratitudeRepo.createEntry(userId, encryptedContent);
+    
+    return toSafeGratitudeJarEntry(createdGratitudeEntry, this.decryptField);
   }
 
   /**
@@ -69,8 +73,8 @@ export class GratitudeJarService {
    */
   public async getEntriesByUser(
     userId: string,
-  ) : Promise<GratitudeEntry[]> {
-    const entries = await this.gratitudeRepo.findByUser(userId);
+  ) : Promise<SafeGratitudeJarEntry[]> {
+    const entries = await this.gratitudeRepo.findByUserAfterId(userId);
     return entries.map(entry => ({
       ...entry,
       content: entry.content_encrypted ? decrypt(entry.content_encrypted, this.secret) : ''

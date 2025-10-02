@@ -128,18 +128,19 @@ export class JournalController {
   }
 
   /**
-   * Handles the retrieval of journal entries for an authenticated student user.
-   * 
-   * Validates the user's identity and role. Supports pagination using `limit` and `lastEntryId`
-   * query parameters. The default limit is 10, and the maximum allowed is 50.
-   * On successful validation, retrieves the requested journal entries and responds 
-   * with a success message and the paginated entries.
-   * 
-   * @param req - The authenticated request containing user information and optional query parameters (`limit`, `lastEntryId`).
-   * @param res - The response object used to send the result back to the client.
-   * @param _next - The next middleware function (unused).
-   * @throws {AppError} If validation fails for the user or permissions.
-   */
+ * Handles the retrieval of journal entries for an authenticated student user.
+ * 
+ * Validates the user's identity and role. Supports pagination using `limit` and `lastEntryId`
+ * query parameters, and filtering by time period using `timeFilter`.
+ * The default limit is 10, and the maximum allowed is 50.
+ * On successful validation, retrieves the requested journal entries and responds 
+ * with a success message and the paginated entries.
+ * 
+ * @param req - The authenticated request containing user information and optional query parameters (`limit`, `lastEntryId`, `timeFilter`).
+ * @param res - The response object used to send the result back to the client.
+ * @param _next - The next middleware function (unused).
+ * @throws {AppError} If validation fails for the user or permissions.
+ */
   public async handleJournalEntryRetrieval(req: AuthenticatedRequest, res: Response, _next: NextFunction): Promise<void> {
     const userId = req.user?.sub;
     const userRole = req.user?.role;
@@ -148,6 +149,7 @@ export class JournalController {
 
     const limitParam = req.query.limit as string | undefined;
     const lastEntryId = req.query.lastEntryId as string | undefined;
+    const timeFilter = req.query.timeFilter as 'today' | 'yesterday' | 'this_week' | 'last_week' | 'all' | undefined;
 
     let limit = 10; // Default limit
     if (limitParam) {
@@ -157,7 +159,11 @@ export class JournalController {
       }
     }
 
-    const entries: PaginatedJournalEntries = await this.journalService.getEntriesByUser(userId!, limit, lastEntryId);
+    // Validate timeFilter parameter
+    const validTimeFilters = ['today', 'yesterday', 'this_week', 'last_week', 'all'];
+    const finalTimeFilter = timeFilter && validTimeFilters.includes(timeFilter) ? timeFilter : 'all';
+
+    const entries: PaginatedJournalEntries = await this.journalService.getEntriesByUser(userId!, limit, lastEntryId, finalTimeFilter);
 
     const response: ApiResponse = {
       success: true,
