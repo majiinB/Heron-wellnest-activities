@@ -33,8 +33,10 @@ import journalRoute from './routes/journal.routes.js'
 import moodCheckInRoute from './routes/moodCheckIn.route.js';
 import gratitudeJarRoute from './routes/gratitudeJar.routes.js';
 import { env } from './config/env.config.js';
+import fs from 'fs';
 
 const app : express.Express = express();
+const isTS = fs.existsSync('./src/routes');
 
 // --- Swagger options ---
 const swaggerOptions = {
@@ -65,7 +67,7 @@ const swaggerOptions = {
       },
     ],
   },
-  apis: ['./src/routes/**/*.ts'], // 👈 path to your route files with @openapi JSDoc comments
+  apis: [isTS? './src/routes/**/*.ts' : "./dist/routes/**/*.{js,ts}"], // 👈 path to your route files with @openapi JSDoc comments
 };
 
 const swaggerSpec = swaggerJsdoc(swaggerOptions);
