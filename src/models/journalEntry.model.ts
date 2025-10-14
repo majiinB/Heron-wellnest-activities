@@ -26,7 +26,7 @@ export class JournalEntry {
   content_encrypted!: EncryptedField;
 
   @Column({ type: "jsonb", nullable: true })
-  mood!: Record<string, number>;
+  wellness_state!: Record<string, number>;
 
   @CreateDateColumn({ type: "timestamptz" })
   created_at!: Date;
