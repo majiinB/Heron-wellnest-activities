@@ -34,5 +34,12 @@ export const AppDataSource = new DataSource({
   password: env.DB_PASSWORD,
   database: env.DB_NAME,
   entities: [JournalEntry, GratitudeEntry, FlipFeelChoice, FlipFeelQuestions, FlipFeelResponse, MoodCheckIn],
-  synchronize: true,
+  ...(env.NODE_ENV === "production" && {
+    ssl: {
+      rejectUnauthorized: false,
+    },
+  }),
+  synchronize: env.NODE_ENV === "development", // Use with caution in production
+  // migrations: ["src/migrations/*.ts"],
+  logging: ["query", "error"],
 })
