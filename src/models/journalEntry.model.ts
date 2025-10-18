@@ -28,12 +28,12 @@ export class JournalEntry {
   @Column({ type: "jsonb", nullable: true })
   wellness_state!: Record<string, number>;
 
+  @Column({ type: "boolean", default: false })
+  is_deleted!: boolean;
+
   @CreateDateColumn({ type: "timestamptz" })
   created_at!: Date;
 
   @UpdateDateColumn({ type: "timestamptz" })
   updated_at!: Date;
-
-  @Column({ type: "boolean", default: false })
-  is_deleted!: boolean;
 }
