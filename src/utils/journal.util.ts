@@ -20,11 +20,12 @@ export function toSafeJournalEntry(
   entry: JournalEntry, 
   decrypt: (field: EncryptedField) => string): SafeJournalEntry {
   try {
-    const { title_encrypted, content_encrypted, mood, ...rest } = entry;
+    const { title_encrypted, content_encrypted, wellness_state, ...rest } = entry;
     return {
       ...rest,
       title: decrypt(title_encrypted),
       content: decrypt(content_encrypted),
+      wellness_state
     };
   } catch (error) {
     throw new AppError(

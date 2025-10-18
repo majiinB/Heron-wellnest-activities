@@ -44,23 +44,15 @@ export class JournalEntryRepository {
    */
   async createEntry(
     user_id: string, 
-    title_encrypted: {
-      iv: string;
-      content: string;
-      tag: string;
-    },
-    content_encrypted: {
-      iv: string;
-      content: string;
-      tag: string;
-    }, 
-    mood?: Record<string, number>
+    title_encrypted: EncryptedField,
+    content_encrypted: EncryptedField,
+    wellness_state?: Record<string, number>
   ): Promise<JournalEntry> {
     const entry = this.repo.create({
       user_id,
       title_encrypted,
       content_encrypted,
-      mood,
+      wellness_state
     });
     return await this.repo.save(entry);
   }
