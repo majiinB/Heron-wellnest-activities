@@ -22,12 +22,12 @@ export class GratitudeEntry {
   @Column({ type: "jsonb" })
   content_encrypted!: EncryptedField;
 
+  @Column({ type: "boolean", default: false })
+  is_deleted!: boolean;
+
   @CreateDateColumn({ type: "timestamptz" })
   created_at!: Date;
 
   @UpdateDateColumn({ type: "timestamptz" })
   updated_at!: Date;
-
-  @Column({ type: "boolean", default: false })
-  is_deleted!: boolean;
 }
