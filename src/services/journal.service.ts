@@ -155,12 +155,12 @@ export class JournalService {
 
     if (!updatedEntry) return null;
 
-    await publishMessage(env.PUBSUB_JOURNAL_TOPIC, {
-      eventType: 'JOURNAL_ENTRY_UPDATED',
-      userId,
-      journalId: updatedEntry.journal_id,
-      timestamp: new Date().toISOString(),
-    });
+    // await publishMessage(env.PUBSUB_JOURNAL_TOPIC, {
+    //   eventType: 'JOURNAL_ENTRY_UPDATED',
+    //   userId,
+    //   journalId: updatedEntry.journal_id,
+    //   timestamp: new Date().toISOString(),
+    // });
 
     return toSafeJournalEntry(updatedEntry, this.decryptField);
   }
