@@ -70,12 +70,12 @@ export class JournalService {
 
     const entry : JournalEntry = await this.journalRepo.createEntry(userId, encryptedTitle, encryptedContent);
 
-    await publishMessage(env.PUBSUB_JOURNAL_TOPIC, {
-      eventType: 'JOURNAL_ENTRY_CREATED',
-      userId,
-      journalId: entry.journal_id,
-      timestamp: new Date().toISOString(),
-    });
+    // await publishMessage(env.PUBSUB_JOURNAL_TOPIC, {
+    //   eventType: 'JOURNAL_ENTRY_CREATED',
+    //   userId,
+    //   journalId: entry.journal_id,
+    //   timestamp: new Date().toISOString(),
+    // });
 
     return toSafeJournalEntry(entry, this.decryptField);
 
