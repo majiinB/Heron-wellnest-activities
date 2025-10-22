@@ -25,22 +25,27 @@ export class MoodCheckInRepository {
     return this.repo.save(checkIn);
   }
 
-  public async getCheckInForToday(user_id: string): Promise<MoodCheckIn | null> {
-    const timeZone = "Asia/Manila";
-
-    const startOfDayPH = new Date();
-    startOfDayPH.setHours(0, 0, 0, 0);
-
-    const endOfDayPH = new Date();
-    endOfDayPH.setHours(23, 59, 59, 999);
-
-    const startUTC = fromZonedTime(startOfDayPH, timeZone);
-    const endUTC = fromZonedTime(endOfDayPH, timeZone);
-
+    public async getCheckInForToday(user_id: string): Promise<MoodCheckIn | null> {
+    const now = new Date();
+    
+    const startOfDayUTC = new Date(Date.UTC(
+      now.getUTCFullYear(),
+      now.getUTCMonth(),
+      now.getUTCDate(),
+      0, 0, 0, 0
+    ));
+  
+    const endOfDayUTC = new Date(Date.UTC(
+      now.getUTCFullYear(),
+      now.getUTCMonth(),
+      now.getUTCDate(),
+      23, 59, 59, 999
+    ));
+  
     return this.repo.findOne({
       where: {
-        user_id,  
-        checked_in_at: Between(startUTC, endUTC),
+        user_id,
+        checked_in_at: Between(startOfDayUTC, endOfDayUTC),
       },
     });
   }
