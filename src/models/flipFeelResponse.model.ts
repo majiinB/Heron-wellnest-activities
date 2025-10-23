@@ -1,6 +1,7 @@
 import { Column, CreateDateColumn, Entity, Index, JoinColumn, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { FlipFeelQuestions } from "./flipFeelQuestions.model.js";
 import { FlipFeelChoice } from "./flipFeelChoices.model.js";
+import { FlipFeel } from "./flipFeel.model.js";
 
 /**
  * @file flipFeelResponse.model.ts
@@ -17,8 +18,8 @@ export class FlipFeelResponse {
   @PrimaryGeneratedColumn("uuid")
   response_id!: string;
 
-  @Column({ type: "uuid" })
-  user_id!: string;
+  @ManyToOne(()=> FlipFeel, {onDelete: "CASCADE"})
+  flip_feel_id!: FlipFeel;
 
   @ManyToOne(()=> FlipFeelQuestions, {onDelete: "CASCADE"})
   @JoinColumn({name: "question_id"})

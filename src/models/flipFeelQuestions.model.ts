@@ -1,4 +1,5 @@
-import { Column, CreateDateColumn, Entity, Index, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, Index, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { FlipFeelChoice } from "./flipFeelChoices.model.js";
 
 /**
  * @file flipFeelQuestions.model.ts
@@ -15,12 +16,19 @@ export class FlipFeelQuestions {
     @PrimaryGeneratedColumn("uuid")
     question_id!: string;
 
+    @Index({ unique: true })
     @Column({ type: "text" })
     question_text!: string;
+
+    @Column({ type: "enum", enum: ["school", "opposite_sex", "peers", "family", "crises", "emotions", "recreation"] })
+    category!: string;
+
+    @OneToMany(() => FlipFeelChoice, (choice) => choice.question_id)
+    choices!: FlipFeelChoice[];
 
     @CreateDateColumn({ type: "timestamptz" })
     created_at!: Date;
 
-    @CreateDateColumn({ type: "timestamptz" })
+    @UpdateDateColumn({ type: "timestamptz" })
     updated_at!: Date;
 }
