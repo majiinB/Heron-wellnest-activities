@@ -1,5 +1,5 @@
 import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
-import { FlipFeelQuestions } from "./flipFeelQuestions.model.js";
+import type { FlipFeelQuestions } from "./flipFeelQuestions.model.js";
 
 /**
  * @file flipFeelChoices.model.ts
@@ -16,7 +16,7 @@ export class FlipFeelChoice {
   @PrimaryGeneratedColumn("uuid")
   choice_id!: string;
 
-  @ManyToOne(()=> FlipFeelQuestions, {onDelete: "CASCADE"})
+  @ManyToOne("FlipFeelQuestions", "choices", { onDelete: "CASCADE" })
   @JoinColumn({name: "question_id"})
   question_id!: FlipFeelQuestions;
 

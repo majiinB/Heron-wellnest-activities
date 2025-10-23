@@ -4,6 +4,7 @@ import type { CategoryEnum, FlipFeelQuestionAndAnswers, FlipFeelService } from "
 import { validateUser } from "../utils/authorization util.js";
 import { AppError } from "../types/appError.type.js";
 import type { ApiResponse } from "../types/apiResponse.type.js";
+import type { ResponseInput } from "../repository/flipFeel.repository.js";
 
 /**
  *
@@ -141,6 +142,129 @@ export class FlipFeelController {
       code: "QUESTIONS_RETRIEVED",
       message: `${questions.length} randomized questions for category '${category}' retrieved successfully`,
       data: { questions },
+    };
+
+    res.status(200).json(response);
+  }
+
+  /**
+   * Submits flip and feel responses and creates a session.
+   *
+   * @param req - Authenticated request containing responses in body
+   * @param res - Response object
+   * @param _next - Next function
+   * @throws {AppError} If validation fails or user is unauthorized
+   */
+  public async submitResponses(
+    req: AuthenticatedRequest,
+    res: Response,
+    _next: NextFunction
+  ): Promise<void> {
+    const userId = req.user?.sub;
+    const userRole = req.user?.role;
+
+    validateUser(userId, userRole, "student");
+
+    const { responses } = req.body || {};
+
+    // Validate input
+    if (!Array.isArray(responses) || responses.length === 0) {
+      throw new AppError(400, "INVALID_INPUT", "Responses must be a non-empty array", true);
+    }
+
+    // Validate each response structure
+    for (const r of responses) {
+      if (!r.question_id || typeof r.question_id !== "string") {
+        throw new AppError(400, "INVALID_QUESTION_ID", "Each response must have a valid question_id", true);
+      }
+      if (!r.choice_id || typeof r.choice_id !== "string") {
+        throw new AppError(400, "INVALID_CHOICE_ID", "Each response must have a valid choice_id", true);
+      }
+    }
+
+    const session = await this.flipFeelService.submitResponses(
+      userId!,
+      responses as ResponseInput[]
+    );
+
+    const response: ApiResponse = {
+      success: true,
+      code: "RESPONSES_SUBMITTED",
+      message: "Flip and feel responses submitted successfully",
+      data: { session },
+    };
+
+    res.status(201).json(response);
+  }
+
+  /**
+   * Retrieves the authenticated user's flip and feel session history.
+   *
+   * @param req - Authenticated request with optional withResponses query param
+   * @param res - Response object
+   * @param _next - Next function
+   */
+  public async getUserSessions(
+    req: AuthenticatedRequest,
+    res: Response,
+    _next: NextFunction
+  ): Promise<void> {
+    const userId = req.user?.sub;
+    const userRole = req.user?.role;
+
+    validateUser(userId, userRole, "student");
+
+    const { withResponses } = req.query;
+    const includeResponses = withResponses === "true";
+
+    const sessions = await this.flipFeelService.getUserSessions(userId!, includeResponses);
+
+    const response: ApiResponse = {
+      success: true,
+      code: "SESSIONS_RETRIEVED",
+      message: `Retrieved ${sessions.length} session(s)`,
+      data: { sessions },
+    };
+
+    res.status(200).json(response);
+  }
+
+  /**
+   * Retrieves a specific flip and feel session by ID.
+   *
+   * @param req - Authenticated request with session ID in params
+   * @param res - Response object
+   * @param _next - Next function
+   * @throws {AppError} If session not found
+   */
+  public async getSessionById(
+    req: AuthenticatedRequest,
+    res: Response,
+    _next: NextFunction
+  ): Promise<void> {
+    const userId = req.user?.sub;
+    const userRole = req.user?.role;
+
+    validateUser(userId, userRole, "student");
+
+    const { id } = req.params;
+
+    if (!id || typeof id !== "string") {
+      throw new AppError(400, "INVALID_SESSION_ID", "Session ID must be a valid string", true);
+    }
+
+    const session = await this.flipFeelService.getSessionById(id);
+
+    // Verify the session belongs to the authenticated user
+    if (session.user_id !== userId) {
+      throw new AppError(403, "FORBIDDEN", "You do not have permission to access this session", true);
+    }
+
+    const response: ApiResponse = {
+      success: true,
+      code: "SESSION_RETRIEVED",
+      message: "Session retrieved successfully",
+      data: { session },
     };
 
     res.status(200).json(response);

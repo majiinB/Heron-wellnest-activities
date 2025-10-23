@@ -1,7 +1,7 @@
 import { Column, CreateDateColumn, Entity, Index, JoinColumn, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
-import { FlipFeelQuestions } from "./flipFeelQuestions.model.js";
-import { FlipFeelChoice } from "./flipFeelChoices.model.js";
-import { FlipFeel } from "./flipFeel.model.js";
+import type { FlipFeelQuestions } from "./flipFeelQuestions.model.js";
+import type { FlipFeelChoice } from "./flipFeelChoices.model.js";
+import type { FlipFeel } from "./flipFeel.model.js";
 
 /**
  * @file flipFeelResponse.model.ts
@@ -18,15 +18,16 @@ export class FlipFeelResponse {
   @PrimaryGeneratedColumn("uuid")
   response_id!: string;
 
-  @ManyToOne(()=> FlipFeel, {onDelete: "CASCADE"})
+  @ManyToOne("FlipFeel", "responses", { onDelete: "CASCADE" })
+  @JoinColumn({ name: "flip_feel_id" })
   flip_feel_id!: FlipFeel;
 
-  @ManyToOne(()=> FlipFeelQuestions, {onDelete: "CASCADE"})
-  @JoinColumn({name: "question_id"})
+  @ManyToOne("FlipFeelQuestions", "responses", { onDelete: "CASCADE" })
+  @JoinColumn({ name: "question_id" })
   question_id!: FlipFeelQuestions;
 
-  @ManyToOne(()=> FlipFeelChoice, {onDelete: "CASCADE"})
-  @JoinColumn({name: "choice_id"})
+  @ManyToOne("FlipFeelChoice", "responses", { onDelete: "CASCADE" })
+  @JoinColumn({ name: "choice_id" })
   choice_id!: FlipFeelChoice;
 
   @CreateDateColumn({ type: "timestamptz" })

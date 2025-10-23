@@ -1,4 +1,5 @@
-import { Column, CreateDateColumn, Entity, Index, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, Index, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { FlipFeelResponse } from "./flipFeelResponse.model.js";
 
 /**
  * @file flipFeelQuestions.model.ts
@@ -18,9 +19,12 @@ export class FlipFeel {
     @Column({ type: "uuid" })
     user_id!: string;
 
+    @OneToMany(() => FlipFeelResponse, (response) => response.flip_feel_id)
+    responses!: FlipFeelResponse[];
+
     @CreateDateColumn({ type: "timestamptz", nullable: true })
     started_at!: Date | null;
 
-    @CreateDateColumn({ type: "timestamptz", nullable: true })
+    @UpdateDateColumn({ type: "timestamptz", nullable: true })
     finished_at!: Date | null;
 }
