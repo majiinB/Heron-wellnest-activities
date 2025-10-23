@@ -1,5 +1,6 @@
 import type { FlipFeelQuestions } from "../models/flipFeelQuestions.model.js";
 import type { ChoiceInput, FlipFeelQuestionRepository } from "../repository/flipFeelQuestions.repository.js";
+import { AppError } from "../types/appError.type.js";
 
 export type CategoryEnum = "school" | "opposite_sex" | "peers" | "family" | "crises" | "emotions" | "recreation";
 
@@ -44,6 +45,20 @@ export class FlipFeelService {
   }
 
   /**
+   * Fisher-Yates shuffle algorithm to randomize array order.
+   *
+   * @param array - The array to shuffle
+   * @returns The shuffled array (mutates in place)
+   */
+  private fisherYatesShuffle<T>(array: T[]): T[] {
+    for (let i = array.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+  }
+
+  /**
    * Creates multiple flip and feel questions with their choices.
    *
    * @param questionsAndAnswers - Array of questions, each with exactly 4 choices.
@@ -57,4 +72,37 @@ export class FlipFeelService {
     return createdQuestions;
   }
 
+  /**
+   * Retrieves a randomized subset of questions for a specific category with their choices.
+   *
+   * @param category - The category to filter questions by
+   * @param count - Number of questions to return (min: 5, max: 15, default: 10)
+   * @returns Promise resolving to array of randomized questions with their choices
+   * @throws {AppError} If count is out of range or not enough questions available
+   */
+  public async getQuestionsByCategory(category: CategoryEnum, count: number = 10): Promise<FlipFeelQuestions[]> {
+    // Validate count parameter
+    if (count < 5 || count > 15) {
+      throw new AppError(400, "INVALID_COUNT", "Question count must be between 5 and 15", true);
+    }
+
+    // Fetch all questions for the category
+    const allQuestions = await this.flipFeelRepo.findByCategory(category);
+
+    // Check if enough questions available
+    if (allQuestions.length < count) {
+      throw new AppError(
+        400, 
+        "INSUFFICIENT_QUESTIONS", 
+        `Not enough questions available. Requested: ${count}, Available: ${allQuestions.length}`, 
+        true
+      );
+    }
+
+    // Shuffle questions using Fisher-Yates
+    const shuffledQuestions = this.fisherYatesShuffle([...allQuestions]);
+
+    // Return the requested number of questions
+    return shuffledQuestions.slice(0, count);
+  }
 }

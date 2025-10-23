@@ -1,6 +1,6 @@
 import type { NextFunction, Response } from "express";
 import type { AuthenticatedRequest } from "../interface/authRequest.interface.js";
-import type { FlipFeelQuestionAndAnswers, FlipFeelService } from "../services/flipFeel.service.js";
+import type { CategoryEnum, FlipFeelQuestionAndAnswers, FlipFeelService } from "../services/flipFeel.service.js";
 import { validateUser } from "../utils/authorization util.js";
 import { AppError } from "../types/appError.type.js";
 import type { ApiResponse } from "../types/apiResponse.type.js";
@@ -31,6 +31,7 @@ import type { ApiResponse } from "../types/apiResponse.type.js";
  */
 export class FlipFeelController {
   private flipFeelService: FlipFeelService;
+  private validCategories: string[] = ["school", "opposite_sex", "peers", "family", "crises", "emotions", "recreation"];
 
   constructor(flipFeelService: FlipFeelService) {
     this.flipFeelService = flipFeelService;
@@ -68,7 +69,7 @@ export class FlipFeelController {
       throw new AppError(400, "INVALID_INPUT", "Questions must be a non-empty array", true);
     }
 
-    const validCategories = ["school", "opposite_sex", "peers", "family", "crises", "emotions", "recreation"];
+    const validCategories = this.validCategories;
 
     // Validate each question structure
     for (const q of questions) {
@@ -95,5 +96,53 @@ export class FlipFeelController {
     };
 
     res.status(201).json(response);
+  }
+
+  /**
+   * Retrieves randomized flip and feel questions for a specific category.
+   *
+   * @param req - Authenticated request with category and count in query params
+   * @param res - Response object
+   * @param _next - Next function
+   */
+  public async getQuestionsByCategory(
+    req: AuthenticatedRequest,
+    res: Response,
+    _next: NextFunction
+  ): Promise<void> {
+    const userId = req.user?.sub;
+    const userRole = req.user?.role;
+
+    validateUser(userId, userRole, "student");
+
+    const { category, count } = req.query;
+
+    if (!category || !this.validCategories.includes(category as string)) {
+      throw new AppError(400, "INVALID_CATEGORY", `Category must be one of: ${this.validCategories.join(", ")}`, true);
+    }
+
+    // Parse and validate count parameter
+    let questionCount = 10; // default
+    if (count) {
+      const parsedCount = parseInt(count as string, 10);
+      if (isNaN(parsedCount)) {
+        throw new AppError(400, "INVALID_COUNT", "Count must be a valid number", true);
+      }
+      questionCount = parsedCount;
+    }
+
+    const questions = await this.flipFeelService.getQuestionsByCategory(
+      category as CategoryEnum, 
+      questionCount
+    );
+
+    const response: ApiResponse = {
+      success: true,
+      code: "QUESTIONS_RETRIEVED",
+      message: `${questions.length} randomized questions for category '${category}' retrieved successfully`,
+      data: { questions },
+    };
+
+    res.status(200).json(response);
   }
 }

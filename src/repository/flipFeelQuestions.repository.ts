@@ -61,10 +61,17 @@ export class FlipFeelQuestionRepository {
   }
 }
 
-  async findById(question_id: string, withChoices = false) {
-    return await this.repo.findOne({
-      where: { question_id },
-      relations: withChoices ? ["choices"] : [],
+  /**
+   * Retrieves all questions for a specific category with their choices.
+   *
+   * @param category - The category to filter questions by
+   * @returns Promise resolving to array of questions with their choices
+   */
+  async findByCategory(category: string): Promise<FlipFeelQuestions[]> {
+    return await this.repo.find({
+      where: { category },
+      relations: ["choices"],
+      order: { created_at: "DESC" },
     });
   }
 
@@ -72,6 +79,13 @@ export class FlipFeelQuestionRepository {
     return await this.repo.find({
       relations: withChoices ? ["choices"] : [],
       order: { created_at: "DESC" },
+    });
+  }
+
+  async findById(question_id: string, withChoices = false) {
+    return await this.repo.findOne({
+      where: { question_id },
+      relations: withChoices ? ["choices"] : [],
     });
   }
 
