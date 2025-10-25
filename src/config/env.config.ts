@@ -18,7 +18,7 @@ dotenv.config();
  *
  * @author Arthur M. Artugue
  * @created 2025-08-17
- * @updated 2025-10-01
+ * @updated 2025-10-26
  */
 export const envSchema = z.object({
   // Application environment
@@ -49,6 +49,7 @@ export const envSchema = z.object({
 
   // Pub/Sub
   PUBSUB_JOURNAL_TOPIC: z.string().min(1, "PUBSUB_JOURNAL_TOPIC is required").default("journal-topic"),
+  PUBSUB_ACTIVITY_TOPIC: z.string().min(1, "PUBSUB_ACTIVITY_TOPIC is required").default("activity-topic"),
 }).superRefine((env, ctx) => {
   if (env.JWT_ALGORITHM === "HS256" && !env.JWT_SECRET) {
     ctx.addIssue({

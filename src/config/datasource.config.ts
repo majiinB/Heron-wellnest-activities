@@ -5,6 +5,7 @@ import { FlipFeelResponse } from "../models/flipFeelResponse.model.js";
 import { GratitudeEntry } from "../models/gratitudeEntry.model.js";
 import { JournalEntry } from "../models/journalEntry.model.js";
 import { MoodCheckIn } from "../models/moodCheckIn.model.js";
+import { UserBadge } from "../models/userBadge.model.js";
 import { env } from "./env.config.js";
 import { DataSource } from "typeorm";
 
@@ -34,7 +35,7 @@ export const AppDataSource = new DataSource({
   username: env.DB_USER,
   password: env.DB_PASSWORD,
   database: env.DB_NAME,
-  entities: [JournalEntry, GratitudeEntry, FlipFeel, FlipFeelChoice, FlipFeelQuestions, FlipFeelResponse, MoodCheckIn],
+  entities: [JournalEntry, GratitudeEntry, FlipFeel, FlipFeelChoice, FlipFeelQuestions, FlipFeelResponse, MoodCheckIn, UserBadge],
   ...(env.NODE_ENV === "production" && {
     ssl: {
       rejectUnauthorized: false,

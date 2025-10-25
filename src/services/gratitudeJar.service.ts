@@ -6,6 +6,7 @@ import type { PaginatedSafeGratitudeJarEntries } from "../types/paginatedGratitu
 import type { SafeGratitudeJarEntry } from "../types/safeGratitudeJarEntry.type.js";
 import { encrypt, decrypt } from "../utils/crypto.util.js";
 import { toSafeGratitudeJarEntries, toSafeGratitudeJarEntry } from "../utils/gratitudeJar.utils.js";
+import { publishMessage } from "../utils/pubsub.util.js";
 
 /**
  * Service class for managing Gratitude Jar entries.
@@ -62,6 +63,13 @@ export class GratitudeJarService {
     const encryptedContent = encrypt(content, this.secret);
 
     const createdGratitudeEntry = await this.gratitudeRepo.createEntry(userId, encryptedContent);
+
+    await publishMessage(env.PUBSUB_ACTIVITY_TOPIC, {
+      eventType: 'GRATITUDE_ENTRY_CREATED',
+      userId,
+      checkInId: createdGratitudeEntry.gratitude_id,
+      timestamp: new Date().toISOString(),
+    });
     
     return toSafeGratitudeJarEntry(createdGratitudeEntry, this.decryptField);
   }

@@ -2,13 +2,13 @@ import { Column, CreateDateColumn, Entity, Index, OneToMany, PrimaryGeneratedCol
 import { FlipFeelResponse } from "./flipFeelResponse.model.js";
 
 /**
- * @file flipFeelQuestions.model.ts
+ * @file flipFeel.model.ts
  * 
  * @description Flip and feel model for the Heron Wellnest Activities API.
  * 
  * @author Arthur M. Artugue
  * @created 2025-10-18
- * @updated 2025-10-18
+ * @updated 2025-10-26
  */
 
 @Entity("flip_feel")

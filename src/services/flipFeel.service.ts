@@ -4,6 +4,8 @@ import type { ResponseInput } from "../repository/flipFeel.repository.js";
 import { type ChoiceInput, FlipFeelQuestionRepository } from "../repository/flipFeelQuestions.repository.js";
 import { FlipFeelRepository } from "../repository/flipFeel.repository.js";
 import { AppError } from "../types/appError.type.js";
+import { publishMessage } from "../utils/pubsub.util.js";
+import { env } from "../config/env.config.js";
 
 export type CategoryEnum = "school" | "opposite_sex" | "peers" | "family" | "crises" | "emotions" | "recreation";
 
@@ -139,7 +141,16 @@ export class FlipFeelService {
 
     try {
       // Create session with responses in one transaction
-      return await this.flipFeelRepoSession.createSessionWithResponses(user_id, responses);
+      const createdSession = await this.flipFeelRepoSession.createSessionWithResponses(user_id, responses);
+
+      await publishMessage(env.PUBSUB_ACTIVITY_TOPIC, {
+        eventType: 'FLIP_FEEL_ENTRY_CREATED',
+        userId: user_id,
+        checkInId: createdSession.flip_feel_id,
+        timestamp: new Date().toISOString(),
+      });
+
+      return createdSession;
     } catch (error) {
       if (error instanceof Error && error.message.includes("Invalid question_id or choice_id")) {
         throw new AppError(400, "INVALID_QUESTION_OR_CHOICE", error.message, true);
