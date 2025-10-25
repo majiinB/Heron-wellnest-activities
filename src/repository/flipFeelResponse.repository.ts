@@ -3,6 +3,7 @@ import { FlipFeelResponse } from "../models/flipFeelResponse.model.js";
 import { FlipFeelQuestions } from "../models/flipFeelQuestions.model.js";
 import { FlipFeelChoice } from "../models/flipFeelChoices.model.js";
 import { Repository } from "typeorm";
+import type { FlipFeel } from "../models/flipFeel.model.js";
 
 export class FlipFeelResponseRepository {
   private repo: Repository<FlipFeelResponse>;
@@ -11,27 +12,25 @@ export class FlipFeelResponseRepository {
     this.repo = AppDataSource.getRepository(FlipFeelResponse);
   }
 
-  async create(user_id: string, question: FlipFeelQuestions, choice: FlipFeelChoice) {
+  async create(session: FlipFeel, question: FlipFeelQuestions, choice: FlipFeelChoice) {
     const response = this.repo.create({
-      user_id,
+      flip_feel_id: session,
       question_id: question,
       choice_id: choice,
     });
     return await this.repo.save(response);
   }
 
+  /**
+   * Finds a response by its ID.
+   *
+   * @param response_id - The response ID
+   * @returns Promise resolving to the response or null
+   */
   async findById(response_id: string) {
     return await this.repo.findOne({
       where: { response_id },
-      relations: ["question_id", "choice_id"],
-    });
-  }
-
-  async findByUser(user_id: string) {
-    return await this.repo.find({
-      where: { user_id },
-      relations: ["question_id", "choice_id"],
-      order: { created_at: "DESC" },
+      relations: ["flip_feel_id", "question_id", "choice_id"],
     });
   }
 

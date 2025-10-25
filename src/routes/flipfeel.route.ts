@@ -14,7 +14,7 @@ const flipfeelController = new FlipFeelController(flipFeelService);
 
 /**
  * @openapi
- * /flip-feel/:
+ * /flip-and-feel/:
  *   post:
  *     summary: Create multiple flip and feel questions
  *     description: Allows counselors/admins to create one or more flip and feel questions with their choices. Each question must have exactly 4 choices and belong to a category.
@@ -245,7 +245,7 @@ router.post('/', heronAuthMiddleware, asyncHandler(flipfeelController.addFlipAnd
 
 /**
  * @openapi
- * /flip-feel/:
+ * /flip-and-feel/:
  *   get:
  *     summary: Retrieve randomized flip and feel questions by category
  *     description: Retrieves a randomized subset of flip and feel questions for a specific category with their choices. Questions are shuffled using Fisher-Yates algorithm to ensure variety.
@@ -405,7 +405,7 @@ router.get('/', heronAuthMiddleware, asyncHandler(flipfeelController.getQuestion
 
 /**
  * @openapi
- * /flip-feel/responses:
+ * /flip-and-feel/responses:
  *   post:
  *     summary: Submit flip and feel responses
  *     description: Allows students to submit their answers to flip and feel questions. Creates a complete session with all responses in a single transaction.
@@ -584,7 +584,7 @@ router.post('/responses', heronAuthMiddleware, asyncHandler(flipfeelController.s
 
 /**
  * @openapi
- * /flip-feel/sessions:
+ * /flip-and-feel/sessions:
  *   get:
  *     summary: Retrieve user's flip and feel session history
  *     description: Retrieves all flip and feel sessions for the authenticated user. Can optionally include detailed response information for each session.
@@ -741,7 +741,7 @@ router.get('/sessions', heronAuthMiddleware, asyncHandler(flipfeelController.get
 
 /**
  * @openapi
- * /flip-feel/sessions/{id}:
+ * /flip-and-feel/sessions/{id}:
  *   get:
  *     summary: Retrieve a specific flip and feel session by ID
  *     description: Retrieves detailed information about a specific flip and feel session, including all responses with full question and choice details. User can only access their own sessions.
