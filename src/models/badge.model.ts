@@ -15,13 +15,13 @@ export class Badge {
     @Column({ type: "text", nullable: true })
     icon_url!: string | null;
 
-    @Column({ type: "string", length: 100 })
+    @Column({ type: "varchar", length: 100 })
     event_trigger!: string;
 
     @Column({ type: "int", default: 0 })
     threshold!: number;
 
-    @Column({ type: "string", length: 100 })
+    @Column({ type: "varchar", length: 100 })
     condition_type!: string;
 
     @Column({ type: "int", default: 1 })
