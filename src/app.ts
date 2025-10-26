@@ -33,6 +33,7 @@ import journalRoute from './routes/journal.routes.js'
 import moodCheckInRoute from './routes/moodCheckIn.route.js';
 import gratitudeJarRoute from './routes/gratitudeJar.routes.js';
 import flipAndFeelRoute from './routes/flipfeel.route.js';
+import badgeRoute from './routes/userBadge.route.js';
 import { env } from './config/env.config.js';
 import fs from 'fs';
 
@@ -45,7 +46,7 @@ const swaggerOptions = {
     openapi: '3.0.0',
     info: {
       title: 'Heron Wellnest Activities API',
-      version: '1.0.3',
+      version: '1.0.4',
       description:"Heron Wellnest Activities API provides endpoints for managing and tracking gamified wellness activities within the app, including journaling (Mind Mirror), mood tracking (Mood Meter / Mood Check-in), gratitude exercises (Gratitude Jar), and interactive experiences (Flip and Feel). This API enables secure creation, retrieval, and management of user activity data while supporting authenticationand role-based access control.",
     },
     servers: [
@@ -88,6 +89,7 @@ app.use('/api/v1/activities/mind-mirror', journalRoute);
 app.use('/api/v1/activities/mood-check-in', moodCheckInRoute);
 app.use('/api/v1/activities/gratitude-jar', gratitudeJarRoute);
 app.use('/api/v1/activities/flip-and-feel', flipAndFeelRoute); 
+app.use('/api/v1/activities/badges', badgeRoute);
 
 app.use(errorMiddleware); // Custom error handling middleware
 
