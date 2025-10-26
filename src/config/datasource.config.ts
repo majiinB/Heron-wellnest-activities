@@ -44,7 +44,7 @@ export const AppDataSource = new DataSource({
       rejectUnauthorized: false,
     },
   }),
-  synchronize: env.NODE_ENV === "development", // Use with caution in production
+  synchronize: true, // Use with caution in production
   // migrations: ["src/migrations/*.ts"],
   logging: ["query", "error"],
 })

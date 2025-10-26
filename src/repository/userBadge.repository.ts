@@ -82,9 +82,11 @@ export class UserBadgeRepository {
    * @returns A promise that resolves to `true` if the user has the badge, otherwise `false`.
    */
   async hasUserBadge(user_id: string, badge_id: string): Promise<boolean> {
-    const count = await this.repo.count({
-      where: { user_id, badge_id }
-    });
+    const count = await this.repo
+      .createQueryBuilder("userBadge")
+      .where("userBadge.user_id = :user_id", { user_id })
+      .andWhere("userBadge.badge_id = :badge_id", { badge_id })
+      .getCount();
     return count > 0;
   }
 
