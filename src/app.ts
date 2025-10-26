@@ -45,7 +45,7 @@ const swaggerOptions = {
     openapi: '3.0.0',
     info: {
       title: 'Heron Wellnest Activities API',
-      version: '1.0.1',
+      version: '1.0.2',
       description:"Heron Wellnest Activities API provides endpoints for managing and tracking gamified wellness activities within the app, including journaling (Mind Mirror), mood tracking (Mood Meter / Mood Check-in), gratitude exercises (Gratitude Jar), and interactive experiences (Flip and Feel). This API enables secure creation, retrieval, and management of user activity data while supporting authenticationand role-based access control.",
     },
     servers: [
