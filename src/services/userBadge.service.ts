@@ -1,4 +1,4 @@
-import type { UserBadgeRepository } from "../repository/userBadge.repository.js";
+import type { allObtainableBadges, UserBadgeRepository } from "../repository/userBadge.repository.js";
 
 /**
  * Service class for managing user badges.
@@ -22,7 +22,7 @@ import type { UserBadgeRepository } from "../repository/userBadge.repository.js"
  * 
  * @author Arthur M. Artugue
  * @created 2025-10-26
- * @updated 2025-10-26
+ * @updated 2025-11-01
  */
 export class UserBadgeService {
   private userBadgeRepo: UserBadgeRepository;
@@ -75,4 +75,18 @@ export class UserBadgeService {
   public async getUserBadgeCount(userId: string): Promise<number> {
     return await this.userBadgeRepo.countByUser(userId);
   }
+
+  /**
+   * Retrieves all badges along with a flag indicating whether the user already has each badge.
+   *
+   * The returned array includes every obtainable badge; each item contains an `isObtained`
+   * boolean set to `true` when the user already owns the badge and `false` otherwise.
+   *
+   * @param userId - The unique identifier of the user to evaluate.
+   * @returns A Promise that resolves to an array of allObtainableBadges with `isObtained` normalized to boolean.
+   * @throws {Error} If the provided userId is falsy or the repository operation fails.
+   */
+  public async getAllObtainableBadges(userId: string): Promise<allObtainableBadges[]> {
+    return await this.userBadgeRepo.getAllObtainableBadges(userId);
+  } 
 }

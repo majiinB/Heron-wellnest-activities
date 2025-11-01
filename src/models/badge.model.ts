@@ -1,9 +1,13 @@
-import { Column, Entity, Index, PrimaryColumn } from "typeorm";
+import { Column, Entity, Index, OneToMany, PrimaryColumn } from "typeorm";
+import type { UserBadge } from "./userBadge.model.js";
 
 @Entity("badges")
 export class Badge {
     @PrimaryColumn("uuid")
     badge_id!: string;
+
+    @OneToMany("UserBadge", "badge")
+    userBadges!: UserBadge[];
 
     @Index({ unique: true })
     @Column({ type: "varchar", length: 100 })

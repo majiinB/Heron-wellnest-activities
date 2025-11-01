@@ -26,7 +26,7 @@ import type { ApiResponse } from "../types/apiResponse.type.js";
  * 
  * @author Arthur M. Artugue
  * @created 2025-10-26
- * @updated 2025-10-26
+ * @updated 2025-11-01
  */
 export class UserBadgeController {
   private userBadgeService: UserBadgeService;
@@ -65,6 +65,44 @@ export class UserBadgeController {
       success: true,
       code: "USER_BADGES_RETRIEVED",
       message: "User badges retrieved successfully",
+      data: {
+        badges,
+        total: badges.length
+      }
+    };
+
+    res.status(200).json(response);
+  }
+
+  /**
+   * Retrieves all badges that the authenticated student user can obtain and sends them in a standardized API response.
+   *
+   * This handler:
+   * - Validates the authenticated user's identity and role ("student") via `validateUser`.
+   * - Calls `this.userBadgeService.getAllObtainableBadges` with the authenticated user's id.
+   * - Responds with HTTP 200 and an ApiResponse containing the badges and the total count.
+   *
+   * @param req - AuthenticatedRequest containing the authenticated user's claims (expected to include `sub` and `role`).
+   * @param res - Express Response used to send the JSON ApiResponse.
+   * @param _next - Express NextFunction (unused) provided to match the middleware/controller signature.
+   *
+   * @returns A Promise that resolves when the response has been sent (Promise<void>).
+   *
+   * @throws May throw if `validateUser` fails (e.g. unauthorized/forbidden) or if `userBadgeService.getAllObtainableBadges` rejects.
+   *
+   */
+  public async getAllObtainableBadges(req: AuthenticatedRequest, res: Response, _next: NextFunction): Promise<void> {
+    const userId = req.user?.sub;
+    const userRole = req.user?.role;
+
+    validateUser(userId, userRole, "student");
+
+    const badges = await this.userBadgeService.getAllObtainableBadges(userId!);
+
+    const response: ApiResponse = {
+      success: true,
+      code: "ALL_OBTAINABLE_BADGES_RETRIEVED",
+      message: "All obtainable badges retrieved successfully",
       data: {
         badges,
         total: badges.length

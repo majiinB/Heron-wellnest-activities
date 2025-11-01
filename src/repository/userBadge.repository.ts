@@ -3,6 +3,19 @@ import { AppDataSource } from "../config/datasource.config.js";
 import { UserBadge } from "../models/userBadge.model.js";
 import { Badge } from "../models/badge.model.js";
 
+export type allObtainableBadges = {
+  badge: UserBadgeWithDetails;
+  is_obtained: boolean;
+}
+
+export type UserBadgeWithDetails = {
+  badge_id: string;
+  name: string;
+  description: string | null;
+  icon_url: string | null;
+  awarded_at: Date;
+}
+
 /**
  * Repository class for managing user badge entities in the database.
  *
@@ -26,7 +39,7 @@ import { Badge } from "../models/badge.model.js";
  * 
  * @author Arthur M. Artugue
  * @created 2025-10-26
- * @updated 2025-10-26
+ * @updated 2025-11-01
  */
 export class UserBadgeRepository {
   private repo: Repository<UserBadge>;
@@ -51,13 +64,7 @@ export class UserBadgeRepository {
    * - icon_url: URL to the badge icon (can be null)
    * - awarded_at: The timestamp when the badge was awarded to the user
    */
-  async getUserBadgesWithDetails(user_id: string): Promise<Array<{
-    badge_id: string;
-    name: string;
-    description: string | null;
-    icon_url: string | null;
-    awarded_at: Date;
-  }>> {
+  async getUserBadgesWithDetails(user_id: string): Promise<UserBadgeWithDetails[]> {
     const userBadges = await this.repo
       .createQueryBuilder("userBadge")
       .leftJoinAndSelect("userBadge.badge", "badge")
@@ -71,6 +78,45 @@ export class UserBadgeRepository {
       description: userBadge.badge.description,
       icon_url: userBadge.badge.icon_url,
       awarded_at: userBadge.awarded_at
+    }));
+  }
+
+  /**
+   * Retrieves all badges from the repository and indicates whether a specific user has obtained each one.
+   *
+   * This method performs a left join between badges and the user's badge records (filtered by the provided userId)
+   * to produce an array of objects describing each badge and a boolean flag `is_obtained`. If the user has obtained
+   * the badge, the badge object's `awarded_at` is populated from the corresponding userBadge entry; otherwise
+   * `awarded_at` is set to the Unix epoch (new Date(0)).
+   *
+   * Notes:
+   * - The method does not modify any database records; it only reads badge and userBadge data.
+   * - The shape of each returned item conforms to `allObtainableBadges[]`, where each item contains:
+   *   - `badge`: badge metadata plus an `awarded_at` Date
+   *   - `is_obtained`: boolean indicating whether the user has the badge
+   *
+   * @param userId - The identifier of the user for whom badge ownership should be determined. Expected to be a non-empty string.
+   * @returns A Promise that resolves to an array of `allObtainableBadges` entries representing every badge and whether the user has obtained it.
+   * @throws Will propagate repository/query errors (e.g., database connectivity or query failures) originating from the underlying ORM.
+   *
+   * @example
+   * // const result = await repo.getAllObtainableBadges("user-uuid");
+   */
+  public async getAllObtainableBadges(userId: string): Promise<allObtainableBadges[]> {
+    const badgesWithStatus = await this.badgeRepo
+      .createQueryBuilder("badge")
+      .leftJoinAndSelect("badge.userBadges", "userBadge", "userBadge.user_id = :userId", { userId })
+      .getMany();
+  
+    return badgesWithStatus.map(badge => ({
+      badge: {
+        badge_id: badge.badge_id,
+        name: badge.name,
+        description: badge.description,
+        icon_url: badge.icon_url,
+        awarded_at: badge.userBadges && badge.userBadges.length > 0 ? badge.userBadges[0].awarded_at : new Date(0)
+      },
+      is_obtained: badge.userBadges && badge.userBadges.length > 0
     }));
   }
 
