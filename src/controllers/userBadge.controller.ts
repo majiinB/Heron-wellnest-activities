@@ -2,7 +2,7 @@ import type { NextFunction, Response } from "express";
 import type { AuthenticatedRequest } from "../interface/authRequest.interface.js";
 import type { UserBadgeService } from "../services/userBadge.service.js";
 import { AppError } from "../types/appError.type.js";
-import { validateUser } from "../utils/authorization util.js";
+import { validateUser } from "../utils/authorization.util.js";
 import type { ApiResponse } from "../types/apiResponse.type.js";
 
 /**

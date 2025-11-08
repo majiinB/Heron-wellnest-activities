@@ -2,7 +2,7 @@ import express, { Router } from 'express';
 import { MoodCheckInRepository } from '../repository/moodCheckIn.repository.js';
 import { MoodCheckInService } from '../services/moodCheckIn.service.js';
 import { MoodCheckInController } from '../controllers/moodCheckIn.controller.js';
-import { heronAuthMiddleware } from '../middlewares/heronAuth.middleware..js';
+import { heronAuthMiddleware } from '../middlewares/heronAuth.middleware.js';
 import { asyncHandler } from '../utils/asyncHandler.util.js';
 
 const router: Router = express.Router();

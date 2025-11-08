@@ -1,5 +1,5 @@
 import express, { Router } from 'express';
-import { heronAuthMiddleware } from '../middlewares/heronAuth.middleware..js';
+import { heronAuthMiddleware } from '../middlewares/heronAuth.middleware.js';
 import { asyncHandler } from '../utils/asyncHandler.util.js';
 import { FlipFeelService } from '../services/flipFeel.service.js';
 import { FlipFeelController } from '../controllers/flipfeel.controller.js';

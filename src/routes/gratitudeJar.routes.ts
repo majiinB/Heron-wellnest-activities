@@ -1,5 +1,5 @@
 import express, { Router } from 'express';
-import { heronAuthMiddleware } from '../middlewares/heronAuth.middleware..js';
+import { heronAuthMiddleware } from '../middlewares/heronAuth.middleware.js';
 import { GratitudeJarController } from '../controllers/gratitudeJar.controller.js';
 import { asyncHandler } from '../utils/asyncHandler.util.js';
 import { GratitudeEntryRepository } from '../repository/gratitudeEntry.repository.js';

@@ -3,7 +3,7 @@ import { response, type NextFunction, type Response} from "express";
 import type { JournalService } from "../services/journal.service.js";
 import type { ApiResponse } from "../types/apiResponse.type.js";
 import { AppError } from "../types/appError.type.js";
-import { validateUser } from "../utils/authorization util.js";
+import { validateUser } from "../utils/authorization.util.js";
 import type { JournalEntry } from "../models/journalEntry.model.js";
 import type { SafeJournalEntry } from "../types/safeJournalEntry.type.js";
 import type { PaginatedJournalEntries } from "../types/paginatedJournalEtntries.type.js";

@@ -1,5 +1,5 @@
 import express, { Router } from 'express';
-import { heronAuthMiddleware } from '../middlewares/heronAuth.middleware..js';
+import { heronAuthMiddleware } from '../middlewares/heronAuth.middleware.js';
 import { UserBadgeController } from '../controllers/userBadge.controller.js';
 import { asyncHandler } from '../utils/asyncHandler.util.js';
 import { UserBadgeRepository } from '../repository/userBadge.repository.js';

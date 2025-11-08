@@ -1,5 +1,5 @@
 import express, { Router } from 'express';
-import { heronAuthMiddleware } from '../middlewares/heronAuth.middleware..js';
+import { heronAuthMiddleware } from '../middlewares/heronAuth.middleware.js';
 import { JournalController } from '../controllers/journal.controller.js';
 import { asyncHandler } from '../utils/asyncHandler.util.js';
 import { JournalEntryRepository } from '../repository/journalEntry.repository.js';

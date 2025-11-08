@@ -2,7 +2,7 @@ import type { NextFunction, Response } from "express";
 import type { MoodCheckInService } from "../services/moodCheckIn.service.js";
 import type { AuthenticatedRequest } from "../interface/authRequest.interface.js";
 import { validate } from "uuid";
-import { validateUser } from "../utils/authorization util.js";
+import { validateUser } from "../utils/authorization.util.js";
 import { AppError } from "../types/appError.type.js";
 import { isValid } from "date-fns";
 import { isValidMood } from "../utils/mood.util.js";

@@ -1,188 +1,330 @@
-# 🏗️ API SERVICE TEMPLATE (GOOGLE CLOUD)
+# Heron Wellnest Activities API
 
-This repository contains a template for an API built with **Node.js, Express, and Docker**, ready to deploy on **Google Cloud Run**. It’s designed to serve as a starting point for new services.
+A lightweight activities microservice for the Heron Wellnest platform. This service provides endpoints for journals, gratitude jar entries, mood check-ins, flipfeel questionnaires, and user badges/rewards.
 
----
+## 📋 Table of Contents
 
-## 👤 Creator
+- [Features](#features)
+- [Tech Stack](#tech-stack)
+- [Architecture](#architecture)
+- [Getting Started](#getting-started)
+- [API Endpoints](#api-endpoints)
+- [Environment Variables](#environment-variables)
+- [Testing](#testing)
+- [Deployment](#deployment)
+- [Project Structure](#project-structure)
 
-This API template was created by **Arthur Artugue**.  
+## ✨ Features
 
-[GitHub](https://github.com/majiinB) | [Portfolio](https://personal-portfolio-virid-delta.vercel.app) | [Email](mailto:arthurartugue392@gmail.com)
+- CRUD for journal entries and gratitude jar entries
+- Mood check-in recording and retrieval
+- Flipfeel questionnaire flow (questions, choices, responses)
+- Badge management and user badge awarding
+- Role-protected endpoints (student) using JWT-based middleware
+- Type-safe codebase with TypeScript and TypeORM
 
----
+## 🛠 Tech Stack
 
-## 📃 Table of Contents
+- **Runtime**: Node.js 20+
+- **Language**: TypeScript
+- **Framework**: Express.js
+- **Database**: PostgreSQL
+- **ORM**: TypeORM
+- **Auth**: JWT-based middleware (service uses `heronAuth.middleware`)
+- **Testing**: Jest
+- **Linting**: ESLint
+- **Containerization**: Docker
+- **Cloud Platform**: Google Cloud Run
+- **CI/CD**: GitHub Actions
 
-1. [Overview](#-overview)  
-2. [Security Features](#-security-features)  
-2. [Prerequisites](#-prerequisites)  
-    - [Make a copy](#make-a-copy-of-the-repo)  
-    - [What to Change](#what-to-change) 
-    - [Additional Steps](#additional-steps)  
-3. [Setup](#-setup)  
-4. [Running Locally](#-running-locally)  
-5. [Deploying to Cloud Run](#d-eploying-to-cloud-run)  
-  
+## 🏗 Architecture
 
----
+The service follows a simple layered architecture:
 
-## 🔭 Overview
+- Controllers — HTTP handlers and response shaping
+- Services — business logic and orchestration
+- Repositories — TypeORM data access
+- Models — TypeORM entities
 
-This API template includes:
+Example flow: a request to award a badge -> controller validates and authorizes -> service checks conditions -> repository writes UserBadge -> controller returns ApiResponse.
 
-- Node.js + Express server  
-- Dockerfile for containerization  
-- GitHub Actions workflow for CI/CD to Cloud Run  
-- Example endpoints ready to extend  
+## 🚀 Getting Started
 
-It’s intended as a **starting point for new services**, so you can copy this repo, rename it, and adapt it for your specific API.
+### Prerequisites
 
----
+- Node.js 20+
+- Docker (optional)
+- PostgreSQL database
 
-## 🔐 Security Features
+### Installation
 
-- **CORS**:  
-  The API already uses [CORS](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS) to restrict cross-origin requests.
-  > **Note:** Rate limiting was not included since this is expected to run in `Google Cloud Run`. The API will be behind a load balancer so rate limiting by IP address will not work. In addition, in memory cache (like Redis) will be dependent on your architecture (Stateless or Stateful). I recommend using `Redis` served in the cloud or just use `Google Cloud Armor`. 
+1. Clone the repository
 
-- **Service Accounts**:  
-  Deployment uses a Google Cloud service account with minimal required permissions for Cloud Run and Artifact Registry. The key is stored securely in GitHub Secrets (`GCP_KEY`) and is never committed to the repo.
-
-- **Branch Protection & Workflow Rules**:  
-  The repository can enforce that the `staging` branch passes tests before changes are merged into `main`. This ensures deployments are safe and reviewed.
-  >**Note:** You need to enforce these rules manually to your github repo. `<your-repo>` -> ⚙️ settings -> 🌿branches -> ➕ Add branch ruleset
-
-- **Environment Variables**:  
-  Sensitive configuration (like `NODE_ENV`, `PORT`, API keys) is stored in a `.env` file or GitHub Secrets, keeping credentials out of source code.
-
-
----
-
-## ✅ Prerequisites
-
-**Before you start** Make sure you have the following installed and set up:
-
-- **Node.js 22+**  
-- **npm** or **yarn**  
-- **Docker** (for building images locally)  
-- **Google Cloud SDK**  
-- **Google Cloud CLI**  
-
-Also, ensure you have a **Google Cloud Project** with:
-
-- Cloud Run enabled  
-- Artifact Registry repository created  
-- Service account key for authentication  
-
-On the GitHub side:
-
-- Repository created  
-- Secrets configured:
-  - `GCP_KEY` (your service account JSON)
-
-Finally, create a **.env** file with the following keys:
-
-- `NODE_ENV=development` (see `env.config.ts` for accepted values)  
-- `PORT=8080`
-
----
-
-## 🪜 Setup
-### Make a copy of the repo
-1. **Clone the repo**  
 ```bash
-git clone <your-repo-url>
-cd <repo-name>
+git clone <repository-url>
+cd activities-api
 ```
 
-2. **Install dependencies**  
+2. Install dependencies
+
 ```bash
 npm install
-# or if you use yarn
-yarn install
 ```
 
-3. **Create your `.env` file**  
+3. Create `.env` in the project root (see Environment Variables below)
+
+4. Run database migrations (if you use migrations)
+
 ```bash
-NODE_ENV=development
-PORT=8080
+npm run migration:run
 ```
 
-### What to Change
+5. Start the development server
 
-#### package.json
-- Update the `name` and `version` fields to match your API.  
-- Ensure the `start` script points to your entry file (`index.js` or `dist/index.js`).
-
-#### .env file
-- Set `NODE_ENV`, `PORT`, and any other environment variables your API needs.
-
-#### Github Workflows
-- Uncomment the whole script if automation is needed, delete if otherwise.
-
-#### Google Cloud configuration
-- Update `GCP_PROJECT_ID`, `REGION`, `ARTIFACT_REGISTRY_REPO`, and `SERVICE_NAME` in your GitHub Actions workflow.  
-- Ensure your service account key has the proper permissions for Cloud Run and Artifact Registry.
-
-### Additional Steps 
->**Note:** These steps are already included in the [Deployment](#deployment) automation. Specifically when you push to `main`, perform these steps if needed (eg. for local development testing).
-
-4. **Build the Docker image**  
-```bash
-docker build -t <your-region>-docker.pkg.dev/<your-project-id>/<your-repo>/<your-service-name>:latest .
-```
-
-5. **Authenticate Docker with Google Artifact Registry**  
-```bash
-gcloud auth configure-docker <your-region>-docker.pkg.dev --quiet
-```
-
-6. **Push the Docker image to Artifact Registry**  
-```bash
-docker push <your-region>-docker.pkg.dev/<your-project-id>/<your-repo>/<your-service-name>:latest
-```
-
-7. **Deploy to Cloud Run**  
-```bash
-gcloud run deploy <your-service-name> \
-  --image <your-region>-docker.pkg.dev/<your-project-id>/<your-repo>/<your-service-name>:latest \
-  --region <your-region> \
-  --platform managed \
-  --allow-unauthenticated
-```
-
----
-
-## 🖥️ Running Locally
-
-- Run API locally (Express server):
 ```bash
 npm run dev
-# or
-yarn dev
 ```
-- Run API locally (Docker Container):
+
+The API will be available at `http://localhost:8080` by default.
+
+### Docker (optional)
+
+Build and run locally:
+
 ```bash
-docker run -p 8080:8080 <your-region>-docker.pkg.dev/<your-project-id>/<your-repo>/<your-service-name>:latest
+docker build -t hw-activities-api .
+docker run -p 8080:8080 --env-file .env hw-activities-api
 ```
+
+## 📡 API Endpoints
+
+### Health
+
+- `GET /health` — basic health check
+
+### Journals
+
+- `GET /journals` — list journal entries
+- `POST /journals` — create a journal entry
+
+### Gratitude Jar
+
+- `GET /gratitude` — list gratitude entries
+- `POST /gratitude` — create a gratitude entry
+
+### Mood Check-ins
+
+- `GET /mood-checks` — list mood check-ins
+- `POST /mood-checks` — record a mood check-in
+
+### Flipfeel
+
+- `GET /flipfeel/questions` — list flipfeel questions
+- `POST /flipfeel/responses` — submit a response
+
+### Badges
+
+- `GET /badges` — list user badges (awarded)
+- `GET /badges/all-obtainable` — list all badges and whether the user has obtained them
+
+Example response shape for `/badges/all-obtainable`:
+
+```json
+{
+	"success": true,
+	"code": "ALL_OBTAINABLE_BADGES_RETRIEVED",
+	"message": "All obtainable badges retrieved successfully",
+	"data": {
+		"badges": [
+			{
+				"badge": {
+					"badge_id": "uuid",
+					"name": "New Beginnings",
+					"description": "You’ve written your first journal.",
+					"icon_url": null,
+					"awarded_at": "1970-01-01T00:00:00.000Z"
+				},
+				"is_obtained": false
+			}
+		],
+		"total": 1
+	}
+}
+```
+
+## 🔧 Environment Variables
+
+Required variables (check `src/config/env.config.ts` for exact names and validation):
+
+| Variable | Description | Example |
+|---|---|---|
+| `NODE_ENV` | Application environment | `development` |
+| `PORT` | Server port | `8080` |
+| `DB_HOST` | Database host | `localhost` |
+| `DB_PORT` | Database port | `5432` |
+| `DB_USER` | Database user | `postgres` |
+| `DB_PASSWORD` | Database password | `password` |
+| `DB_NAME` | Database name | `activities` |
+| `JWT_SECRET` | JWT signing secret used by `heronAuth` middleware | `your-jwt-secret` |
+
+Store production secrets in your platform's secret manager.
+
+## 🧪 Testing
+
+Run tests (Jest):
+
+```bash
+npm test
+```
+
+Run linter (ESLint):
+
+```bash
+npm run lint
+npm run lint:fix
+```
+
+## 📦 Deployment
+
+### GitHub Actions CI/CD
+
+The repo can be configured with GitHub Actions to build, test, and deploy to Google Cloud Run. Typical flow:
+
+- `staging` branch — run tests and deploy to staging
+- `main` branch — run tests and deploy to production
+
+### Manual deploy to Cloud Run
+
+1. Build and push container image
+
+```bash
+docker build -t <region>-docker.pkg.dev/<project-id>/<repo>/<service>:latest .
+docker push <region>-docker.pkg.dev/<project-id>/<repo>/<service>:latest
+```
+
+2. Deploy
+
+```bash
+gcloud run deploy activities-api \
+	--image <region>-docker.pkg.dev/<project-id>/<repo>/<service>:latest \
+	--region <region> \
+	--platform managed \
+	--allow-unauthenticated
+```
+
+## 📁 Project Structure
+
+```
+activities-api/
+├── src/
+│   ├── config/
+│   │   ├── cors.config.ts
+│   │   ├── datasource.config.ts
+│   │   ├── env.config.ts
+|   |   └── pubsub.config.ts
+│   ├── controllers/
+|   |   ├── flipfeel.controller.ts
+│   │   ├── gratitudeJar.controller.ts
+│   │   ├── journal.controller.ts
+│   │   ├── moodCheckIn.controller.ts
+│   │   └── userBadge.controller.ts
+|   ├── interface/
+|   |   └── authRequest.interface.ts 
+│   ├── models/
+|   |   ├── badge.model.ts
+|   |   ├── flipFeel.model.ts
+|   |   ├── flipFeelChoices.model.ts
+|   |   ├── flipFeelQuestions.model.ts
+|   |   ├── flipFeelResponse.modelt.ts|
+|   |   ├── gratitudeEntry.model.ts
+│   │   ├── journalEntry.model.ts
+│   │   ├── moodCheckIn.model.ts
+│   │   └── userBadge.model.ts
+│   ├── repository/
+|   |   ├── flipFeel.repository.ts
+|   |   ├── flipFeelChoices.repository.ts
+|   |   ├── flipFeelQuestions.repository.ts
+|   |   ├── flipFeelResponse.repository.ts|
+|   |   ├── gratitudeEntry.repository.ts
+│   │   ├── journalEntry.repository.ts
+│   │   ├── moodCheckIn.repository.ts
+│   │   └── userBadge.repository.ts
+│   ├── routes/
+|   |   ├── flipfeel.route.ts
+|   |   ├── gratitudeJar.routes.ts
+│   │   ├── journal.routes.ts
+|   |   ├── moodCheckIn.route.ts
+│   │   └── userBadge.route.ts
+│   ├── services/
+|   |   ├── flipfeel.service.ts
+|   |   ├── gratitudeJar.service.ts
+│   │   ├── journal.service.ts
+|   |   ├── moodCheckIn.service.ts
+│   │   └── userBadge.service.ts
+│   ├── middlewares/
+|   |   ├── erro.middleware.ts
+│   │   ├── heronAuth.middleware.ts
+|   |   └── logger.middleware.ts
+│   ├── utils/
+|   |   ├── asyncHandler.util.ts
+|   |   ├── authorization.util.ts
+|   |   ├── crypto.util.ts
+|   |   ├── gratitudeJar.utils.ts
+|   |   ├── journal.util.ts
+|   |   ├── jwt.util.ts
+|   |   ├── logger.util.ts
+|   |   ├── mood.util.ts
+|   |   └── pubsub.util.ts
+│   └── app.ts
+├── Dockerfile
+├── package.json
+├── tsconfig.json
+└── README.md
+```
+
+## 👨‍💻 Development
+
+### Code Style
+
+The project uses ESLint for linting. Run:
+
+```bash
+# Run linter
+npm run lint
+
+# Fix auto-fixable issues
+npm run lint:fix
+```
+
+### Database Migrations
+
+```bash
+# Generate migration
+npm run migration:generate -- -n MigrationName
+
+# Run migrations
+npm run migration:run
+
+# Revert migration
+npm run migration:revert
+```
+
+## 📄 License
+
+This project is proprietary software developed for the Heron Wellnest platform.
+
+## 👥 Authors
+
+- **Arthur M. Artugue** - Lead Developer
+
+## 🤝 Contributing
+
+This is a private project. Please contact the project maintainers for contribution guidelines.
+
+## 📞 Support
+
+For issues and questions, please contact the development team.
 
 ---
 
-## ☁️ Deploying to Cloud Run
-
-Deployment is automated via **GitHub Actions**:
-
-1. Push to the `staging` branch for testing in a staging environment (optional but recommended).  
-2. Push to the `main` branch to deploy to production.  
-
-The workflow will:  
-- Authenticate with Google Cloud  
-- Build and push Docker image to Artifact Registry  
-- Deploy the API to Cloud Run  
-
->**Note:** Make sure the `GCP_KEY` secret in GitHub contains your service account JSON key.
-
-**Optional best practice:**  
-- You can enforce a branch protection rule in GitHub so that `main` can only be updated after the `staging` branch passes tests. This ensures that only verified code is deployed to production.
-
+**Last Updated**: 2025-11-08
