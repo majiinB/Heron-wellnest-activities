@@ -166,6 +166,11 @@ Required variables (check `src/config/env.config.ts` for exact names and validat
 | `DB_PASSWORD` | Database password | `password` |
 | `DB_NAME` | Database name | `activities` |
 | `JWT_SECRET` | JWT signing secret used by `heronAuth` middleware | `your-jwt-secret` |
+| `JWT_ISSUER` | Service that issues the jwt tokens | `issuer-service-api` |
+| `JWT_AUDIENCE` | Audience of the jwt token | `service-user` |
+| `JWT_ALGORITHM` | Algorithm used to encrypt the token | `algorithm` |
+| `CONTENT_ENCRYPTION_KEY` | Encryption key used to encrypt and decrypt user journal entries | `encryption-key` |
+| `CONTENT_ENCRYPTION_ALGORITHM` | Encryption algorithm | `algorithm` |
 
 Store production secrets in your platform's secret manager.
 
