@@ -19,7 +19,7 @@
  *
  * @author Arthur M. Artugue
  * @created 2025-08-16
- * @updated 2025-09-25
+ * @updated 2025-11-11
  */
 
 import express from 'express';
@@ -69,7 +69,7 @@ const swaggerOptions = {
       },
     ],
   },
-  apis: [isTS? './src/routes/**/*.ts' : "./dist/routes/**/*.{js,ts}"], // 👈 path to your route files with @openapi JSDoc comments
+  apis: [isTS? './src/routes/**/*.ts' : "./dist/routes/**/*.{js,ts}"], // path to your route files with @openapi JSDoc comments
 };
 
 const swaggerSpec = swaggerJsdoc(swaggerOptions);
