@@ -1,10 +1,10 @@
 import * as jose from 'jose';
 import fs from 'fs';
-import { createPrivateKey, createPublicKey, randomUUID } from 'crypto';
+import { createPublicKey } from 'crypto';
 import {env} from '../config/env.config.js'
 import type { JwtConfig } from '../types/jwtConfig.type.js';
 import type { AccessTokenClaims } from '../types/accessTokenClaim.type.js';
-import { decodeJwt, jwtVerify, SignJWT, type JWTPayload } from 'jose';
+import { decodeJwt, jwtVerify } from 'jose';
 import { AppError } from '../types/appError.type.js';
 import { JOSEAlgNotAllowed, JWSSignatureVerificationFailed, JWTClaimValidationFailed, JWTExpired, JWTInvalid } from 'jose/errors';
 
@@ -38,9 +38,9 @@ if (cfg.alg === 'HS256') {
     );
   }
 
-  const privatePem = fs.existsSync(env.JWT_PRIVATE_KEY)
-    ? fs.readFileSync(env.JWT_PRIVATE_KEY, 'utf8')
-    : env.JWT_PRIVATE_KEY;
+  // const privatePem = fs.existsSync(env.JWT_PRIVATE_KEY)
+  //   ? fs.readFileSync(env.JWT_PRIVATE_KEY, 'utf8')
+  //   : env.JWT_PRIVATE_KEY;
 
   const publicPem = fs.existsSync(env.JWT_PUBLIC_KEY)
     ? fs.readFileSync(env.JWT_PUBLIC_KEY, 'utf8')

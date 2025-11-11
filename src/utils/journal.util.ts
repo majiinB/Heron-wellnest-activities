@@ -27,6 +27,7 @@ export function toSafeJournalEntry(
       content: decrypt(content_encrypted),
       wellness_state
     };
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   } catch (error) {
     throw new AppError(
       500,

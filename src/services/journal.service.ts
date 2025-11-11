@@ -1,7 +1,6 @@
 import { env } from "../config/env.config.js";
 import { JournalEntry } from "../models/journalEntry.model.js";
 import type { JournalEntryRepository } from "../repository/journalEntry.repository.js";
-import type { ApiResponse } from "../types/apiResponse.type.js";
 import type { EncryptedField } from "../types/encryptedField.type.js";
 import type { PaginatedJournalEntries } from "../types/paginatedJournalEtntries.type.js";
 import type { SafeJournalEntry } from "../types/safeJournalEntry.type.js";
@@ -38,7 +37,7 @@ import { publishMessage } from "../utils/pubsub.util.js";
 export class JournalService {
   private journalRepo : JournalEntryRepository;
   private secret: string;
-  private readonly decryptField = (field: EncryptedField) => decrypt(field, this.secret);
+  private readonly decryptField = (field: EncryptedField): string => decrypt(field, this.secret);
 
 
   /**

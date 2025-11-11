@@ -10,7 +10,7 @@ import { logger } from './logger.util.js';
  * @returns A promise that resolves to the message ID of the published message.
  * @throws Will throw an error if publishing the message fails.
  */
-export async function publishMessage(topicName: string, payload: object) {
+export async function publishMessage(topicName: string, payload: object): Promise<string> {
   const dataBuffer = Buffer.from(JSON.stringify(payload));
 
   try {

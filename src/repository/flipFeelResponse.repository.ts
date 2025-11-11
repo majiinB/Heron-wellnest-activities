@@ -12,7 +12,7 @@ export class FlipFeelResponseRepository {
     this.repo = AppDataSource.getRepository(FlipFeelResponse);
   }
 
-  async create(session: FlipFeel, question: FlipFeelQuestions, choice: FlipFeelChoice) {
+  async create(session: FlipFeel, question: FlipFeelQuestions, choice: FlipFeelChoice): Promise<FlipFeelResponse> {
     const response = this.repo.create({
       flip_feel_id: session,
       question_id: question,
@@ -27,21 +27,21 @@ export class FlipFeelResponseRepository {
    * @param response_id - The response ID
    * @returns Promise resolving to the response or null
    */
-  async findById(response_id: string) {
+  async findById(response_id: string): Promise<FlipFeelResponse | null> {
     return await this.repo.findOne({
       where: { response_id },
       relations: ["flip_feel_id", "question_id", "choice_id"],
     });
   }
 
-  async findByQuestion(question_id: string) {
+  async findByQuestion(question_id: string): Promise<FlipFeelResponse[]> {
     return await this.repo.find({
       where: { question_id: { question_id } },
       relations: ["choice_id"],
     });
   }
 
-  async delete(response_id: string) {
-    return await this.repo.delete(response_id);
+  async delete(response_id: string): Promise<void> {
+   await this.repo.delete(response_id);
   }
 }

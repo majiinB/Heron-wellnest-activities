@@ -23,7 +23,7 @@ export class FlipFeelQuestionRepository {
     this.repo = AppDataSource.getRepository(FlipFeelQuestions);
   }
 
-  async create(category: string, question_text: string, choices: ChoiceInput[]) {
+  async create(category: string, question_text: string, choices: ChoiceInput[]): Promise<FlipFeelQuestions | null> {
   // Validate exactly 4 choices
   if (choices.length !== 4) {
     throw new AppError(400, "INVALID_CHOICES_COUNT", "Exactly 4 choices are required", true);
@@ -75,28 +75,28 @@ export class FlipFeelQuestionRepository {
     });
   }
 
-  async findAll(withChoices = false) {
+  async findAll(withChoices = false): Promise<FlipFeelQuestions[]> {
     return await this.repo.find({
       relations: withChoices ? ["choices"] : [],
       order: { created_at: "DESC" },
     });
   }
 
-  async findById(question_id: string, withChoices = false) {
+  async findById(question_id: string, withChoices = false): Promise<FlipFeelQuestions | null> {
     return await this.repo.findOne({
       where: { question_id },
       relations: withChoices ? ["choices"] : [],
     });
   }
 
-  async update(question_id: string, question_text: string) {
+  async update(question_id: string, question_text: string): Promise<FlipFeelQuestions | null> {
     const question = await this.findById(question_id);
     if (!question) return null;
     question.question_text = question_text;
     return await this.repo.save(question);
   }
 
-  async delete(question_id: string) {
-    return await this.repo.delete(question_id);
+  async delete(question_id: string): Promise<void> {
+   await this.repo.delete(question_id);
   }
 }

@@ -72,6 +72,7 @@ export class UserBadgeRepository {
       .orderBy("userBadge.awarded_at", "DESC")
       .getMany();
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return userBadges.map((userBadge: any) => ({
       badge_id: userBadge.badge.badge_id,
       name: userBadge.badge.name,

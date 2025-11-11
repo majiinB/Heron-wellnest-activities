@@ -1,5 +1,4 @@
 import { env } from "../config/env.config.js";
-import type { GratitudeEntry } from "../models/gratitudeEntry.model.js";
 import type { GratitudeEntryRepository } from "../repository/gratitudeEntry.repository.js";
 import type { EncryptedField } from "../types/encryptedField.type.js";
 import type { PaginatedSafeGratitudeJarEntries } from "../types/paginatedGratitudeJarEntries.type.js";
@@ -37,7 +36,7 @@ import { publishMessage } from "../utils/pubsub.util.js";
 export class GratitudeJarService {
   private gratitudeRepo : GratitudeEntryRepository;
   private secret: string;
-  private readonly decryptField = (field: EncryptedField) => decrypt(field, this.secret);
+  private readonly decryptField = (field: EncryptedField): string => decrypt(field, this.secret);
 
   /**
    * Creates an instance of the GratitudeJar service.

@@ -1,7 +1,6 @@
 import type { NextFunction, Response } from "express";
 import type { AuthenticatedRequest } from "../interface/authRequest.interface.js";
 import type { UserBadgeService } from "../services/userBadge.service.js";
-import { AppError } from "../types/appError.type.js";
 import { validateUser } from "../utils/authorization.util.js";
 import type { ApiResponse } from "../types/apiResponse.type.js";
 
@@ -26,7 +25,7 @@ import type { ApiResponse } from "../types/apiResponse.type.js";
  * 
  * @author Arthur M. Artugue
  * @created 2025-10-26
- * @updated 2025-11-01
+ * @updated 2025-11-11
  */
 export class UserBadgeController {
   private userBadgeService: UserBadgeService;

@@ -86,7 +86,7 @@ async findByUserAfterId(
   timeFilter: 'today' | 'yesterday' | 'this_week' | 'last_week' | 'all' = 'all'
 ): Promise<JournalEntry[]> {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  let baseWhere: any = { user_id, is_deleted: false };
+  const baseWhere: any = { user_id, is_deleted: false };
 
   // Add date filtering
   if (timeFilter !== 'all') {
@@ -218,7 +218,7 @@ async findByUserAfterId(
  * @param timeFilter - The time period filter.
  * @returns Object containing start and end dates.
  */
-  private getDateRange(timeFilter: 'today' | 'yesterday' | 'this_week' | 'last_week') {
+  private getDateRange(timeFilter: 'today' | 'yesterday' | 'this_week' | 'last_week'): { startDate: Date; endDate: Date } {
     const now = new Date();
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
     

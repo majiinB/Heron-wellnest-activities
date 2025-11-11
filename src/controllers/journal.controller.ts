@@ -1,15 +1,13 @@
 import type { AuthenticatedRequest } from "../interface/authRequest.interface.js";
-import { response, type NextFunction, type Response} from "express";
+import { type NextFunction, type Response} from "express";
 import type { JournalService } from "../services/journal.service.js";
 import type { ApiResponse } from "../types/apiResponse.type.js";
 import { AppError } from "../types/appError.type.js";
 import { validateUser } from "../utils/authorization.util.js";
-import type { JournalEntry } from "../models/journalEntry.model.js";
 import type { SafeJournalEntry } from "../types/safeJournalEntry.type.js";
 import type { PaginatedJournalEntries } from "../types/paginatedJournalEtntries.type.js";
-import { v4 as uuidv4, validate as isUuid } from "uuid";
+import { validate as isUuid } from "uuid";
 import { isNumbersOnly, looksLikeNonsense } from "../utils/journal.util.js";
-import { tr } from "zod/locales";
 
 /**
  * Controller class for handling Journal entry-related HTTP requests.
@@ -32,7 +30,7 @@ import { tr } from "zod/locales";
  * 
  * @author Arthur M. Artugue
  * @created 2025-09-22
- * @updated 2025-09-25
+ * @updated 2025-11-11
  */
 export class JournalController {
   private journalService: JournalService;

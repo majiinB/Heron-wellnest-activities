@@ -1,4 +1,4 @@
-import { Column, CreateDateColumn, Entity, Index, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import type { EncryptedField } from "../types/encryptedField.type.js";
 
 /**
@@ -8,7 +8,7 @@ import type { EncryptedField } from "../types/encryptedField.type.js";
  * 
  * @author Arthur M. Artugue
  * @created 2025-09-21
- * @updated 2025-09-25
+ * @updated 2025-11-11
  */
 
 @Entity("journal_entries")

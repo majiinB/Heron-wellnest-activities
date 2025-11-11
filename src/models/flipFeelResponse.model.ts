@@ -1,4 +1,4 @@
-import { Column, CreateDateColumn, Entity, Index, JoinColumn, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 import type { FlipFeelQuestions } from "./flipFeelQuestions.model.js";
 import type { FlipFeelChoice } from "./flipFeelChoices.model.js";
 import type { FlipFeel } from "./flipFeel.model.js";
@@ -10,7 +10,7 @@ import type { FlipFeel } from "./flipFeel.model.js";
  * 
  * @author Arthur M. Artugue
  * @created 2025-09-21
- * @updated 2025-09-21
+ * @updated 2025-11-11
  */
 
 @Entity("flip_feel_responses")

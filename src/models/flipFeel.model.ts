@@ -1,4 +1,4 @@
-import { Column, CreateDateColumn, Entity, Index, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { FlipFeelResponse } from "./flipFeelResponse.model.js";
 
 /**
@@ -8,7 +8,7 @@ import { FlipFeelResponse } from "./flipFeelResponse.model.js";
  * 
  * @author Arthur M. Artugue
  * @created 2025-10-18
- * @updated 2025-10-26
+ * @updated 2025-11-11
  */
 
 @Entity("flip_feel")

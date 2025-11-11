@@ -25,6 +25,7 @@ export function toSafeGratitudeJarEntry(
       ...rest,
       content: decrypt(content_encrypted),
     };
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   } catch (error) {
     throw new AppError(
       500,

@@ -5,7 +5,7 @@ import { AppError } from "../types/appError.type.js";
 import { validateUser } from "../utils/authorization.util.js";
 import type { SafeGratitudeJarEntry } from "../types/safeGratitudeJarEntry.type.js";
 import type { ApiResponse } from "../types/apiResponse.type.js";
-import { v4 as uuidv4, validate as isUuid } from "uuid";
+import { validate as isUuid } from "uuid";
 
 /**
  * 

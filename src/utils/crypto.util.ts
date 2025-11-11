@@ -4,7 +4,6 @@ import type { EncryptedField } from "../types/encryptedField.type.js";
 
 const ALGORITHM: "aes-256-gcm" = env.CONTENT_ENCRYPTION_ALGORITHM;
 const IV_LENGTH: number = env.CONTENT_ENCRYPTION_IV_LENGTH
-const KEY_LENGTH: number = env.CONTENT_ENCRYPTION_KEY_LENGTH;
 
 // Derive a 256-bit key from the secret
 function getKey(secret: string): Buffer {
