@@ -34,6 +34,7 @@ jobs:
   build-and-deploy:
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
+    environment: Production
     env:
       SERVICE_NAME: hw-activities-api
       GCP_PROJECT_ID: heron-wellnest
