@@ -35,7 +35,7 @@ describe("Database / DataSource", () => {
 
   it("should fail to initialize with wrong config", async () => {
     const fakeDataSource = new DataSource({
-      type: "mysql",
+      type: "postgres",
       host: "invalid-host",
       port: 1234,
       username: "wrong-user",
