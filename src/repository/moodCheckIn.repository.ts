@@ -1,6 +1,6 @@
 import { Between, type Repository } from "typeorm";
 import { AppDataSource } from "../config/datasource.config.js";
-import { MoodCheckIn } from "../models/moodCheckIn.model.js";
+import { MoodCheckIn } from "../models/activities/moodCheckIn.model.js";
 
 export class MoodCheckInRepository {
   private repo: Repository<MoodCheckIn>;

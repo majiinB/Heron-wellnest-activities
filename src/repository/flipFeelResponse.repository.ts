@@ -1,9 +1,9 @@
 import { AppDataSource } from "../config/datasource.config.js";
-import { FlipFeelResponse } from "../models/flipFeelResponse.model.js";
-import { FlipFeelQuestions } from "../models/flipFeelQuestions.model.js";
-import { FlipFeelChoice } from "../models/flipFeelChoices.model.js";
+import { FlipFeelResponse } from "../models/activities/flipFeelResponse.model.js";
+import { FlipFeelQuestions } from "../models/activities/flipFeelQuestions.model.js";
+import { FlipFeelChoice } from "../models/activities/flipFeelChoices.model.js";
 import { Repository } from "typeorm";
-import type { FlipFeel } from "../models/flipFeel.model.js";
+import type { FlipFeel } from "../models/activities/flipFeel.model.js";
 
 export class FlipFeelResponseRepository {
   private repo: Repository<FlipFeelResponse>;

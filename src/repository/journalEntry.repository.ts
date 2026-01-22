@@ -1,6 +1,6 @@
 import { And, LessThan, MoreThanOrEqual, type Repository } from "typeorm";
 import { AppDataSource } from "../config/datasource.config.js";
-import { JournalEntry } from "../models/journalEntry.model.js";
+import { JournalEntry } from "../models/activities/journalEntry.model.js";
 import type { EncryptedField } from "../types/encryptedField.type.js";
 
 /**

@@ -1,6 +1,6 @@
 import { LessThan, type Repository } from "typeorm";
 import { AppDataSource } from "../config/datasource.config.js";
-import { GratitudeEntry } from "../models/gratitudeEntry.model.js";
+import { GratitudeEntry } from "../models/activities/gratitudeEntry.model.js";
 import type { EncryptedField } from "../types/encryptedField.type.js";
 import { AppError } from "../types/appError.type.js";
 
