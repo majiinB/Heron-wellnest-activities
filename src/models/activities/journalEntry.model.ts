@@ -1,5 +1,5 @@
 import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
-import type { EncryptedField } from "../types/encryptedField.type.js";
+import type { EncryptedField } from "../../types/encryptedField.type.js";
 
 /**
  * @file journalEntry.model.ts

@@ -1,8 +1,9 @@
-import { Column, CreateDateColumn, Entity, PrimaryColumn, UpdateDateColumn } from "typeorm/browser";
+import { Column, CreateDateColumn, Entity, OneToMany, PrimaryColumn, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm/browser";
+import { PetInteraction } from "./petsInteractions.model.js";
 
 @Entity("pets")
 export class Pet {
-  @PrimaryColumn("uuid")
+  @PrimaryGeneratedColumn("uuid")
   pet_id!: string;
 
   @Column({ type: "uuid", unique: true, nullable: false })
@@ -40,4 +41,7 @@ export class Pet {
 
   @CreateDateColumn({ type: "timestamptz", default: () => "CURRENT_TIMESTAMP", nullable: false })
   created_at!: Date;
+
+  @OneToMany(() => PetInteraction, (interaction) => interaction.pet_id)
+  pet_interactions!: PetInteraction[];
 }
