@@ -1,8 +1,8 @@
-import { env } from "../config/env.config.js";
-import type { MoodCheckIn } from "../models/moodCheckIn.model.js";
-import type { MoodCheckInRepository } from "../repository/moodCheckIn.repository.js";
-import { AppError } from "../types/appError.type.js";
-import { publishMessage } from "../utils/pubsub.util.js";
+import { env } from "../../config/env.config.js";
+import type { MoodCheckIn } from "../../models/activities/moodCheckIn.model.js";
+import type { MoodCheckInRepository } from "../../repository/activities/moodCheckIn.repository.js";
+import { AppError } from "../../types/appError.type.js";
+import { publishMessage } from "../../utils/pubsub.util.js";
 
 export class MoodCheckInService {
   private moodCheckInRepo : MoodCheckInRepository;

@@ -1,4 +1,4 @@
-import type { allObtainableBadges, UserBadgeRepository } from "../repository/userBadge.repository.js";
+import type { allObtainableBadges, UserBadgeRepository } from "../../repository/activities/userBadge.repository.js";
 
 /**
  * Service class for managing user badges.

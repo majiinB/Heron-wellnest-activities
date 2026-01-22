@@ -2,8 +2,8 @@ import express, { Router } from 'express';
 import { heronAuthMiddleware } from '../middlewares/heronAuth.middleware.js';
 import { GratitudeJarController } from '../controllers/gratitudeJar.controller.js';
 import { asyncHandler } from '../utils/asyncHandler.util.js';
-import { GratitudeEntryRepository } from '../repository/gratitudeEntry.repository.js';
-import { GratitudeJarService } from '../services/gratitudeJar.service.js';
+import { GratitudeEntryRepository } from '../repository/activities/gratitudeEntry.repository.js';
+import { GratitudeJarService } from '../services/activities/gratitudeJar.service.js';
 
 const router: Router = express.Router();
 const gratitudeEntryRepository = new GratitudeEntryRepository();

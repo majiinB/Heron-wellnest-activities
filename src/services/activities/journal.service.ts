@@ -1,12 +1,12 @@
-import { env } from "../config/env.config.js";
-import { JournalEntry } from "../models/journalEntry.model.js";
-import type { JournalEntryRepository } from "../repository/journalEntry.repository.js";
-import type { EncryptedField } from "../types/encryptedField.type.js";
-import type { PaginatedJournalEntries } from "../types/paginatedJournalEtntries.type.js";
-import type { SafeJournalEntry } from "../types/safeJournalEntry.type.js";
-import { decrypt, encrypt } from "../utils/crypto.util.js";
-import { toSafeJournalEntries, toSafeJournalEntry } from "../utils/journal.util.js";
-import { publishMessage } from "../utils/pubsub.util.js";
+import { env } from "../../config/env.config.js";
+import { JournalEntry } from "../../models/activities/journalEntry.model.js";
+import type { JournalEntryRepository } from "../../repository/activities/journalEntry.repository.js";
+import type { EncryptedField } from "../../types/encryptedField.type.js";
+import type { PaginatedJournalEntries } from "../../types/paginatedJournalEtntries.type.js";
+import type { SafeJournalEntry } from "../../types/safeJournalEntry.type.js";
+import { decrypt, encrypt } from "../../utils/crypto.util.js";
+import { toSafeJournalEntries, toSafeJournalEntry } from "../../utils/journal.util.js";
+import { publishMessage } from "../../utils/pubsub.util.js";
 
 /**
  * Service class for managing Journal entries.

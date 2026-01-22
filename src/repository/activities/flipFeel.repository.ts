@@ -1,9 +1,9 @@
 import { Repository } from "typeorm";
-import { AppDataSource } from "../config/datasource.config.js";
-import { FlipFeel } from "../models/activities/flipFeel.model.js";
-import { FlipFeelResponse } from "../models/activities/flipFeelResponse.model.js";
-import { FlipFeelQuestions } from "../models/activities/flipFeelQuestions.model.js";
-import { FlipFeelChoice } from "../models/activities/flipFeelChoices.model.js";
+import { AppDataSource } from "../../config/datasource.config.js";
+import { FlipFeel } from "../../models/activities/flipFeel.model.js";
+import { FlipFeelResponse } from "../../models/activities/flipFeelResponse.model.js";
+import { FlipFeelQuestions } from "../../models/activities/flipFeelQuestions.model.js";
+import { FlipFeelChoice } from "../../models/activities/flipFeelChoices.model.js";
 
 export interface ResponseInput {
   question_id: string;

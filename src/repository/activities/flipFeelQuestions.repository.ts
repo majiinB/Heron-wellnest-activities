@@ -1,8 +1,8 @@
 import { QueryFailedError, Repository } from "typeorm";
-import { FlipFeelQuestions } from "../models/activities/flipFeelQuestions.model.js";
-import { AppDataSource } from "../config/datasource.config.js";
-import { FlipFeelChoice } from "../models/activities/flipFeelChoices.model.js";
-import { AppError } from "../types/appError.type.js";
+import { FlipFeelQuestions } from "../../models/activities/flipFeelQuestions.model.js";
+import { AppDataSource } from "../../config/datasource.config.js";
+import { FlipFeelChoice } from "../../models/activities/flipFeelChoices.model.js";
+import { AppError } from "../../types/appError.type.js";
 
 export enum ClassificationEnum {
   EXCELLING = 'Excelling',

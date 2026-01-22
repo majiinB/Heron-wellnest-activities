@@ -1,11 +1,11 @@
-import { env } from "../config/env.config.js";
-import type { GratitudeEntryRepository } from "../repository/gratitudeEntry.repository.js";
-import type { EncryptedField } from "../types/encryptedField.type.js";
-import type { PaginatedSafeGratitudeJarEntries } from "../types/paginatedGratitudeJarEntries.type.js";
-import type { SafeGratitudeJarEntry } from "../types/safeGratitudeJarEntry.type.js";
-import { encrypt, decrypt } from "../utils/crypto.util.js";
-import { toSafeGratitudeJarEntries, toSafeGratitudeJarEntry } from "../utils/gratitudeJar.utils.js";
-import { publishMessage } from "../utils/pubsub.util.js";
+import { env } from "../../config/env.config.js";
+import type { GratitudeEntryRepository } from "../../repository/activities/gratitudeEntry.repository.js";
+import type { EncryptedField } from "../../types/encryptedField.type.js";
+import type { PaginatedSafeGratitudeJarEntries } from "../../types/paginatedGratitudeJarEntries.type.js";
+import type { SafeGratitudeJarEntry } from "../../types/safeGratitudeJarEntry.type.js";
+import { encrypt, decrypt } from "../../utils/crypto.util.js";
+import { toSafeGratitudeJarEntries, toSafeGratitudeJarEntry } from "../../utils/gratitudeJar.utils.js";
+import { publishMessage } from "../../utils/pubsub.util.js";
 
 /**
  * Service class for managing Gratitude Jar entries.

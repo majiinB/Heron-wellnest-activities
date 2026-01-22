@@ -1,11 +1,11 @@
-import type { FlipFeel } from "../models/flipFeel.model.js";
-import type { FlipFeelQuestions } from "../models/flipFeelQuestions.model.js";
-import type { ResponseInput } from "../repository/flipFeel.repository.js";
-import { type ChoiceInput, FlipFeelQuestionRepository } from "../repository/flipFeelQuestions.repository.js";
-import { FlipFeelRepository } from "../repository/flipFeel.repository.js";
-import { AppError } from "../types/appError.type.js";
-import { publishMessage } from "../utils/pubsub.util.js";
-import { env } from "../config/env.config.js";
+import type { FlipFeel } from "../../models/activities/flipFeel.model.js";
+import type { FlipFeelQuestions } from "../../models/activities/flipFeelQuestions.model.js";
+import type { ResponseInput } from "../../repository/activities/flipFeel.repository.js";
+import { type ChoiceInput, FlipFeelQuestionRepository } from "../../repository/activities/flipFeelQuestions.repository.js";
+import { FlipFeelRepository } from "../../repository/activities/flipFeel.repository.js";
+import { AppError } from "../../types/appError.type.js";
+import { publishMessage } from "../../utils/pubsub.util.js";
+import { env } from "../../config/env.config.js";
 
 export type CategoryEnum = "school" | "opposite_sex" | "peers" | "family" | "crises" | "emotions" | "recreation";
 

@@ -1,7 +1,7 @@
 import type { Repository } from "typeorm";
-import { AppDataSource } from "../config/datasource.config.js";
-import { UserBadge } from "../models/activities/userBadge.model.js";
-import { Badge } from "../models/activities/badge.model.js";
+import { AppDataSource } from "../../config/datasource.config.js";
+import { UserBadge } from "../../models/activities/userBadge.model.js";
+import { Badge } from "../../models/activities/badge.model.js";
 
 export type allObtainableBadges = {
   badge: UserBadgeWithDetails;

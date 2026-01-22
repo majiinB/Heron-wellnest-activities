@@ -2,8 +2,8 @@ import express, { Router } from 'express';
 import { heronAuthMiddleware } from '../middlewares/heronAuth.middleware.js';
 import { JournalController } from '../controllers/journal.controller.js';
 import { asyncHandler } from '../utils/asyncHandler.util.js';
-import { JournalEntryRepository } from '../repository/journalEntry.repository.js';
-import { JournalService } from '../services/journal.service.js';
+import { JournalEntryRepository } from '../repository/activities/journalEntry.repository.js';
+import { JournalService } from '../services/activities/journal.service.js';
 
 const router: Router = express.Router();
 const journalRepository = new JournalEntryRepository();

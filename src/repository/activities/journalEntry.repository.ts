@@ -1,7 +1,7 @@
 import { And, LessThan, MoreThanOrEqual, type Repository } from "typeorm";
-import { AppDataSource } from "../config/datasource.config.js";
-import { JournalEntry } from "../models/activities/journalEntry.model.js";
-import type { EncryptedField } from "../types/encryptedField.type.js";
+import { AppDataSource } from "../../config/datasource.config.js";
+import { JournalEntry } from "../../models/activities/journalEntry.model.js";
+import type { EncryptedField } from "../../types/encryptedField.type.js";
 
 /**
  * Repository class for managing journal entry entities in the database.

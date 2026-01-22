@@ -1,6 +1,6 @@
 import type { NextFunction, Response } from "express";
 import type { AuthenticatedRequest } from "../../interface/authRequest.interface.js";
-import type { GratitudeJarService } from "../../services/gratitudeJar.service.js";
+import type { GratitudeJarService } from "../../services/activities/gratitudeJar.service.js";
 import { AppError } from "../../types/appError.type.js";
 import { validateUser } from "../../utils/authorization.util.js";
 import type { SafeGratitudeJarEntry } from "../../types/safeGratitudeJarEntry.type.js";

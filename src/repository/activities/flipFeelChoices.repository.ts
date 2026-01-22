@@ -1,6 +1,6 @@
-import { AppDataSource } from "../config/datasource.config.js";
-import { FlipFeelChoice } from "../models/activities/flipFeelChoices.model.js";
-import { FlipFeelQuestions } from "../models/activities/flipFeelQuestions.model.js";
+import { AppDataSource } from "../../config/datasource.config.js";
+import { FlipFeelChoice } from "../../models/activities/flipFeelChoices.model.js";
+import { FlipFeelQuestions } from "../../models/activities/flipFeelQuestions.model.js";
 import { Repository } from "typeorm";
 
 export class FlipFeelChoiceRepository {
