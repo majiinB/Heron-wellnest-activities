@@ -1,10 +1,10 @@
 import type { NextFunction, Response } from "express";
-import type { MoodCheckInService } from "../services/moodCheckIn.service.js";
-import type { AuthenticatedRequest } from "../interface/authRequest.interface.js";
-import { validateUser } from "../utils/authorization.util.js";
-import { AppError } from "../types/appError.type.js";
-import { isValidMood } from "../utils/mood.util.js";
-import type { ApiResponse } from "../types/apiResponse.type.js";
+import type { MoodCheckInService } from "../../services/moodCheckIn.service.js";
+import type { AuthenticatedRequest } from "../../interface/authRequest.interface.js";
+import { validateUser } from "../../utils/authorization.util.js";
+import { AppError } from "../../types/appError.type.js";
+import { isValidMood } from "../../utils/mood.util.js";
+import type { ApiResponse } from "../../types/apiResponse.type.js";
 
 export class MoodCheckInController {
   private moodCheckInService: MoodCheckInService;

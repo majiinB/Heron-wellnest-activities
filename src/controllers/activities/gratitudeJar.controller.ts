@@ -1,10 +1,10 @@
 import type { NextFunction, Response } from "express";
-import type { AuthenticatedRequest } from "../interface/authRequest.interface.js";
-import type { GratitudeJarService } from "../services/gratitudeJar.service.js";
-import { AppError } from "../types/appError.type.js";
-import { validateUser } from "../utils/authorization.util.js";
-import type { SafeGratitudeJarEntry } from "../types/safeGratitudeJarEntry.type.js";
-import type { ApiResponse } from "../types/apiResponse.type.js";
+import type { AuthenticatedRequest } from "../../interface/authRequest.interface.js";
+import type { GratitudeJarService } from "../../services/gratitudeJar.service.js";
+import { AppError } from "../../types/appError.type.js";
+import { validateUser } from "../../utils/authorization.util.js";
+import type { SafeGratitudeJarEntry } from "../../types/safeGratitudeJarEntry.type.js";
+import type { ApiResponse } from "../../types/apiResponse.type.js";
 import { validate as isUuid } from "uuid";
 
 /**

@@ -1,10 +1,10 @@
 import type { NextFunction, Response } from "express";
-import type { AuthenticatedRequest } from "../interface/authRequest.interface.js";
-import type { CategoryEnum, FlipFeelQuestionAndAnswers, FlipFeelService } from "../services/flipFeel.service.js";
-import { validateUser } from "../utils/authorization.util.js";
-import { AppError } from "../types/appError.type.js";
-import type { ApiResponse } from "../types/apiResponse.type.js";
-import type { ResponseInput } from "../repository/flipFeel.repository.js";
+import type { AuthenticatedRequest } from "../../interface/authRequest.interface.js";
+import type { CategoryEnum, FlipFeelQuestionAndAnswers, FlipFeelService } from "../../services/flipFeel.service.js";
+import { validateUser } from "../../utils/authorization.util.js";
+import { AppError } from "../../types/appError.type.js";
+import type { ApiResponse } from "../../types/apiResponse.type.js";
+import type { ResponseInput } from "../../repository/flipFeel.repository.js";
 
 /**
  *

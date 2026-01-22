@@ -1,13 +1,13 @@
-import type { AuthenticatedRequest } from "../interface/authRequest.interface.js";
+import type { AuthenticatedRequest } from "../../interface/authRequest.interface.js";
 import { type NextFunction, type Response} from "express";
-import type { JournalService } from "../services/journal.service.js";
-import type { ApiResponse } from "../types/apiResponse.type.js";
-import { AppError } from "../types/appError.type.js";
-import { validateUser } from "../utils/authorization.util.js";
-import type { SafeJournalEntry } from "../types/safeJournalEntry.type.js";
-import type { PaginatedJournalEntries } from "../types/paginatedJournalEtntries.type.js";
+import type { JournalService } from "../../services/journal.service.js";
+import type { ApiResponse } from "../../types/apiResponse.type.js";
+import { AppError } from "../../types/appError.type.js";
+import { validateUser } from "../../utils/authorization.util.js";
+import type { SafeJournalEntry } from "../../types/safeJournalEntry.type.js";
+import type { PaginatedJournalEntries } from "../../types/paginatedJournalEtntries.type.js";
 import { validate as isUuid } from "uuid";
-import { isNumbersOnly, looksLikeNonsense } from "../utils/journal.util.js";
+import { isNumbersOnly, looksLikeNonsense } from "../../utils/journal.util.js";
 
 /**
  * Controller class for handling Journal entry-related HTTP requests.
