@@ -29,11 +29,11 @@ import cors from 'cors';
 import {corsOptions} from './config/cors.config.js'; 
 import { loggerMiddleware } from './middlewares/logger.middleware.js';
 import { errorMiddleware } from './middlewares/error.middleware.js';
-import journalRoute from './routes/journal.routes.js'
-import moodCheckInRoute from './routes/moodCheckIn.route.js';
-import gratitudeJarRoute from './routes/gratitudeJar.routes.js';
-import flipAndFeelRoute from './routes/flipfeel.route.js';
-import badgeRoute from './routes/userBadge.route.js';
+import journalRoute from './routes/activities/journal.routes.js'
+import moodCheckInRoute from './routes/activities/moodCheckIn.route.js';
+import gratitudeJarRoute from './routes/activities/gratitudeJar.routes.js';
+import flipAndFeelRoute from './routes/activities/flipfeel.route.js';
+import badgeRoute from './routes/activities/userBadge.route.js';
 import { env } from './config/env.config.js';
 import fs from 'fs';
 

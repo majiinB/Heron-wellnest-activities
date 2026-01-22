@@ -1,41 +1,23 @@
 import express, { Router } from 'express';
-import { heronAuthMiddleware } from '../middlewares/heronAuth.middleware.js';
-import { JournalController } from '../controllers/journal.controller.js';
-import { asyncHandler } from '../utils/asyncHandler.util.js';
-import { JournalEntryRepository } from '../repository/activities/journalEntry.repository.js';
-import { JournalService } from '../services/activities/journal.service.js';
+import { heronAuthMiddleware } from '../../middlewares/heronAuth.middleware.js';
+import { GratitudeJarController } from '../../controllers/activities/gratitudeJar.controller.js';
+import { asyncHandler } from '../../utils/asyncHandler.util.js';
+import { GratitudeEntryRepository } from '../../repository/activities/gratitudeEntry.repository.js';
+import { GratitudeJarService } from '../../services/activities/gratitudeJar.service.js';
 
 const router: Router = express.Router();
-const journalRepository = new JournalEntryRepository();
-const journalService = new JournalService(journalRepository);
-const journalController = new JournalController(journalService);
+const gratitudeEntryRepository = new GratitudeEntryRepository();
+const gratitudeJarService = new GratitudeJarService(gratitudeEntryRepository);
+const gratitudeJarController = new GratitudeJarController(gratitudeJarService);
 
 /**
  * @openapi
- * components:
- *   schemas:
- *     ErrorResponse:
- *       type: object
- *       properties:
- *         success:
- *           type: boolean
- *           example: false
- *         code:
- *           type: string
- *           example: BAD_REQUEST
- *         message:
- *           type: string
- *           example: Invalid input data
- */
-
-/**
- * @openapi
- * /mind-mirror/:
+ * /gratitude-jar/:
  *   post:
- *     summary: Create a new journal entry
- *     description: Allows a student to create a journal entry with an encrypted title and content.
+ *     summary: Create a new gratitude jar entry
+ *     description: Allows a student to create a gratitude jar entry with encrypted content. Content must be meaningful and between 3-500 characters.
  *     tags:
- *       - Journal / Mind Mirror
+ *       - Gratitude Jar
  *     security:
  *       - bearerAuth: []
  *     requestBody:
@@ -45,22 +27,17 @@ const journalController = new JournalController(journalService);
  *           schema:
  *             type: object
  *             required:
- *               - title
  *               - content
  *             properties:
- *               title:
- *                 type: string
- *                 minLength: 5
- *                 maxLength: 100
- *                 example: "Test journal 2"
  *               content:
  *                 type: string
- *                 minLength: 20
- *                 maxLength: 2000
- *                 example: "Once upon a time ako ay nagawa ng api para sa thesis namin"
+ *                 minLength: 3
+ *                 maxLength: 500
+ *                 description: The gratitude content to be stored (meaningful text, not nonsense)
+ *                 example: "I'm grateful for my supportive family and friends who always believe in me."
  *     responses:
- *       '201':
- *         description: Journal entry created successfully
+ *       "201":
+ *         description: Gratitude entry created successfully
  *         content:
  *           application/json:
  *             schema:
@@ -71,14 +48,14 @@ const journalController = new JournalController(journalService);
  *                   example: true
  *                 code:
  *                   type: string
- *                   example: JOURNAL_ENTRY_CREATED
+ *                   example: GRATITUDE_ENTRY_CREATED
  *                 message:
  *                   type: string
- *                   example: Journal entry created successfully
+ *                   example: Gratitude entry created successfully
  *                 data:
  *                   type: object
  *                   properties:
- *                     journal_id:
+ *                     gratitude_id:
  *                       type: string
  *                       format: uuid
  *                       example: 54a2a768-8e62-41ac-8b6e-e5092881000e
@@ -86,23 +63,20 @@ const journalController = new JournalController(journalService);
  *                       type: string
  *                       format: uuid
  *                       example: 6bf00386-77e5-4a02-9ed9-5f4f294ceb8b
+ *                     content:
+ *                       type: string
+ *                       example: "I'm grateful for my supportive family and friends who always believe in me."
  *                     created_at:
  *                       type: string
  *                       format: date-time
- *                       example: 2025-09-25T12:08:11.190Z
+ *                       example: 2025-10-02T12:08:11.190Z
  *                     updated_at:
  *                       type: string
  *                       format: date-time
- *                       example: 2025-09-25T12:08:11.190Z
+ *                       example: 2025-10-02T12:08:11.190Z
  *                     is_deleted:
  *                       type: boolean
  *                       example: false
- *                     title:
- *                       type: string
- *                       example: Test journal 3
- *                     content:
- *                       type: string
- *                       example: Once upon a time ako ay nagawa ng api para sa thesis namin
  *       "400":
  *         description: Bad request - validation failed
  *         content:
@@ -110,11 +84,16 @@ const journalController = new JournalController(journalService);
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
  *             examples:
- *               badRequest:
+ *               invalidContent:
+ *                 value:
+ *                   success: false
+ *                   code: INVALID_CONTENT
+ *                   message: Content must be a non-empty string.
+ *               contentLength:
  *                 value:
  *                   success: false
  *                   code: BAD_REQUEST
- *                   message: "Bad Request: Title and content are required"
+ *                   message: Content must be between 3 and 500 characters.
  *       "401":
  *         description: Unauthorized - missing or invalid token
  *         content:
@@ -125,8 +104,8 @@ const journalController = new JournalController(journalService);
  *               unauthorized:
  *                 value:
  *                   success: false
- *                   code: "UNAUTHORIZED / AUTH_NO_TOKEN"
- *                   message: "Unauthorized: User ID missing / no token provided"
+ *                   code: UNAUTHORIZED
+ *                   message: "Unauthorized: User ID missing"
  *       "403":
  *         description: Forbidden - insufficient permissions
  *         content:
@@ -138,7 +117,7 @@ const journalController = new JournalController(journalService);
  *                 value:
  *                   success: false
  *                   code: FORBIDDEN
- *                   message: "Forbidden: Insufficient permissions / Forbidden: <role_needed> role required"
+ *                   message: "Forbidden: student role required"
  *       "500":
  *         description: Internal server error
  *         content:
@@ -150,18 +129,18 @@ const journalController = new JournalController(journalService);
  *                 value:
  *                   success: false
  *                   code: INTERNAL_SERVER_ERROR
- *                   message: Internal server error
+ *                   message: An unexpected error occurred
  */
-router.post('/', heronAuthMiddleware, asyncHandler(journalController.handleJournalEntryCreation.bind(journalController)));
+router.post('/', heronAuthMiddleware, asyncHandler(gratitudeJarController.addEntry.bind(gratitudeJarController)));
 
 /**
  * @openapi
- * /mind-mirror/:
+ * /gratitude-jar/:
  *   get:
- *     summary: Retrieve journal entries for a student
- *     description: Retrieves all journal entries for the authenticated student, including decrypted title, content, and optional mood. Supports pagination via `limit` and `lastEntryId` query parameters.
+ *     summary: Retrieve gratitude jar entries for a student
+ *     description: Retrieves all gratitude jar entries for the authenticated student, including decrypted content. Supports pagination via `limit` and `lastEntryId` query parameters.
  *     tags:
- *       - Journal / Mind Mirror
+ *       - Gratitude Jar
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -176,14 +155,14 @@ router.post('/', heronAuthMiddleware, asyncHandler(journalController.handleJourn
  *           default: 10
  *       - name: lastEntryId
  *         in: query
- *         description: The ID of the last journal entry from the previous page (for pagination)
+ *         description: The ID of the last gratitude entry from the previous page (for pagination)
  *         required: false
  *         schema:
  *           type: string
  *           format: uuid
  *     responses:
  *       "200":
- *         description: Journal entries retrieved successfully
+ *         description: Gratitude entries retrieved successfully
  *         content:
  *           application/json:
  *             schema:
@@ -194,10 +173,10 @@ router.post('/', heronAuthMiddleware, asyncHandler(journalController.handleJourn
  *                   example: true
  *                 code:
  *                   type: string
- *                   example: JOURNAL_ENTRIES_RETRIEVED
+ *                   example: GRATITUDE_ENTRIES_FETCHED
  *                 message:
  *                   type: string
- *                   example: Journal entries retrieved successfully
+ *                   example: Gratitude entries fetched successfully
  *                 data:
  *                   type: object
  *                   properties:
@@ -206,12 +185,14 @@ router.post('/', heronAuthMiddleware, asyncHandler(journalController.handleJourn
  *                       items:
  *                         type: object
  *                         properties:
- *                           journal_id:
+ *                           gratitude_id:
  *                             type: string
  *                             format: uuid
  *                           user_id:
  *                             type: string
  *                             format: uuid
+ *                           content:
+ *                             type: string
  *                           created_at:
  *                             type: string
  *                             format: date-time
@@ -220,16 +201,24 @@ router.post('/', heronAuthMiddleware, asyncHandler(journalController.handleJourn
  *                             format: date-time
  *                           is_deleted:
  *                             type: boolean
- *                           title:
- *                             type: string
- *                           content:
- *                             type: string
  *                     hasMore:
  *                       type: boolean
  *                     nextCursor:
  *                       type: string
  *                       format: uuid
  *                       nullable: true
+ *       "400":
+ *         description: Bad request - validation failed
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *             examples:
+ *               invalidLimit:
+ *                 value:
+ *                   success: false
+ *                   code: BAD_REQUEST
+ *                   message: Limit must be a positive number not exceeding 50.
  *       "401":
  *         description: Unauthorized - missing or invalid token
  *         content:
@@ -240,8 +229,8 @@ router.post('/', heronAuthMiddleware, asyncHandler(journalController.handleJourn
  *               unauthorized:
  *                 value:
  *                   success: false
- *                   code: "UNAUTHORIZED / AUTH_NO_TOKEN"
- *                   message: "Unauthorized: User ID missing / no token provided"
+ *                   code: UNAUTHORIZED
+ *                   message: "Unauthorized: User ID missing"
  *       "403":
  *         description: Forbidden - insufficient permissions
  *         content:
@@ -253,7 +242,7 @@ router.post('/', heronAuthMiddleware, asyncHandler(journalController.handleJourn
  *                 value:
  *                   success: false
  *                   code: FORBIDDEN
- *                   message: "Forbidden: Insufficient permissions / Forbidden: <role_needed> role required"
+ *                   message: "Forbidden: student role required"
  *       "500":
  *         description: Internal server error
  *         content:
@@ -265,31 +254,32 @@ router.post('/', heronAuthMiddleware, asyncHandler(journalController.handleJourn
  *                 value:
  *                   success: false
  *                   code: INTERNAL_SERVER_ERROR
- *                   message: Internal server error
+ *                   message: An unexpected error occurred
  */
-router.get('/', heronAuthMiddleware, asyncHandler(journalController.handleJournalEntryRetrieval.bind(journalController)));
+router.get('/', heronAuthMiddleware, asyncHandler(gratitudeJarController.getEntriesByUser.bind(gratitudeJarController)));
 
 /**
  * @openapi
- * /mind-mirror/{id}:
+ * /gratitude-jar/{id}:
  *   get:
- *     summary: Retrieve a specific journal entry
- *     description: Retrieves a single journal entry for the authenticated student by its ID, including decrypted title, content, and optional mood.
+ *     summary: Retrieve a specific gratitude jar entry by ID
+ *     description: Retrieves a single gratitude jar entry by its unique identifier for the authenticated student, including decrypted content.
  *     tags:
- *       - Journal / Mind Mirror
+ *       - Gratitude Jar
  *     security:
  *       - bearerAuth: []
  *     parameters:
  *       - name: id
  *         in: path
  *         required: true
- *         description: UUID of the journal entry to retrieve
+ *         description: The unique identifier of the gratitude jar entry
  *         schema:
  *           type: string
  *           format: uuid
+ *           example: 54a2a768-8e62-41ac-8b6e-e5092881000e
  *     responses:
  *       "200":
- *         description: Journal entry retrieved successfully
+ *         description: Gratitude entry retrieved successfully
  *         content:
  *           application/json:
  *             schema:
@@ -300,33 +290,37 @@ router.get('/', heronAuthMiddleware, asyncHandler(journalController.handleJourna
  *                   example: true
  *                 code:
  *                   type: string
- *                   example: JOURNAL_ENTRY_RETRIEVED
+ *                   example: GRATITUDE_ENTRY_FETCHED
  *                 message:
  *                   type: string
- *                   example: Journal entry retrieved successfully
+ *                   example: Gratitude entry fetched successfully
  *                 data:
  *                   type: object
  *                   properties:
- *                     journal_id:
+ *                     gratitude_id:
  *                       type: string
  *                       format: uuid
+ *                       example: 54a2a768-8e62-41ac-8b6e-e5092881000e
  *                     user_id:
  *                       type: string
  *                       format: uuid
+ *                       example: 6bf00386-77e5-4a02-9ed9-5f4f294ceb8b
+ *                     content:
+ *                       type: string
+ *                       example: "I'm grateful for my supportive family and friends who always believe in me."
  *                     created_at:
  *                       type: string
  *                       format: date-time
+ *                       example: 2025-10-02T12:08:11.190Z
  *                     updated_at:
  *                       type: string
  *                       format: date-time
+ *                       example: 2025-10-02T12:08:11.190Z
  *                     is_deleted:
  *                       type: boolean
- *                     title:
- *                       type: string
- *                     content:
- *                       type: string
+ *                       example: false
  *       "400":
- *         description: Bad request - invalid journal entry ID format
+ *         description: Bad request - invalid ID format
  *         content:
  *           application/json:
  *             schema:
@@ -335,8 +329,8 @@ router.get('/', heronAuthMiddleware, asyncHandler(journalController.handleJourna
  *               invalidId:
  *                 value:
  *                   success: false
- *                   code: BAD_REQUEST
- *                   message: "Bad Request: Invalid journal entry ID format"
+ *                   code: INVALID_ID
+ *                   message: Gratitude ID must be a valid string.
  *       "401":
  *         description: Unauthorized - missing or invalid token
  *         content:
@@ -347,8 +341,8 @@ router.get('/', heronAuthMiddleware, asyncHandler(journalController.handleJourna
  *               unauthorized:
  *                 value:
  *                   success: false
- *                   code: "UNAUTHORIZED / AUTH_NO_TOKEN"
- *                   message: "Unauthorized: User ID missing / no token provided"
+ *                   code: UNAUTHORIZED
+ *                   message: "Unauthorized: User ID missing"
  *       "403":
  *         description: Forbidden - insufficient permissions
  *         content:
@@ -360,9 +354,9 @@ router.get('/', heronAuthMiddleware, asyncHandler(journalController.handleJourna
  *                 value:
  *                   success: false
  *                   code: FORBIDDEN
- *                   message: "Forbidden: Insufficient permissions / Forbidden: student role required"
+ *                   message: "Forbidden: student role required"
  *       "404":
- *         description: Journal entry not found
+ *         description: Not found - gratitude entry does not exist
  *         content:
  *           application/json:
  *             schema:
@@ -372,7 +366,7 @@ router.get('/', heronAuthMiddleware, asyncHandler(journalController.handleJourna
  *                 value:
  *                   success: false
  *                   code: NOT_FOUND
- *                   message: "Journal entry not found"
+ *                   message: Gratitude entry not found.
  *       "500":
  *         description: Internal server error
  *         content:
@@ -384,50 +378,47 @@ router.get('/', heronAuthMiddleware, asyncHandler(journalController.handleJourna
  *                 value:
  *                   success: false
  *                   code: INTERNAL_SERVER_ERROR
- *                   message: Internal server error
+ *                   message: An unexpected error occurred
  */
-router.get('/:id', heronAuthMiddleware, asyncHandler(journalController.handleSpecificJournalEntryRetrieval.bind(journalController)));
+router.get('/:id', heronAuthMiddleware, asyncHandler(gratitudeJarController.getEntryById.bind(gratitudeJarController)));
 
 /**
  * @openapi
- * /mind-mirror/{id}:
+ * /gratitude-jar/{id}:
  *   put:
- *     summary: Update a journal entry
- *     description: Updates the title and/or content of a journal entry for the authenticated student. At least one field (title or content) must be provided.
+ *     summary: Update a gratitude jar entry
+ *     description: Updates an existing gratitude jar entry with new content for the authenticated student. Content must be meaningful and between 3-500 characters.
  *     tags:
- *       - Journal / Mind Mirror
+ *       - Gratitude Jar
  *     security:
  *       - bearerAuth: []
  *     parameters:
  *       - name: id
  *         in: path
  *         required: true
- *         description: UUID of the journal entry to update
+ *         description: The unique identifier of the gratitude jar entry to update
  *         schema:
  *           type: string
  *           format: uuid
+ *           example: 54a2a768-8e62-41ac-8b6e-e5092881000e
  *     requestBody:
  *       required: true
  *       content:
  *         application/json:
  *           schema:
  *             type: object
+ *             required:
+ *               - content
  *             properties:
- *               title:
- *                 type: string
- *                 minLength: 5
- *                 maxLength: 100
- *                 description: Optional new title for the journal entry (must be meaningful, not nonsense or numbers only)
- *                 example: "Reflections after counseling session"
  *               content:
  *                 type: string
- *                 minLength: 20
- *                 maxLength: 2000
- *                 description: Optional new content for the journal entry (must be meaningful, not nonsense or numbers only)
- *                 example: "Today I realized the importance of taking things one step at a time..."
+ *                 minLength: 3
+ *                 maxLength: 500
+ *                 description: The updated gratitude content (meaningful text, not nonsense)
+ *                 example: "I'm grateful for the beautiful sunset and peaceful moments today."
  *     responses:
  *       "200":
- *         description: Journal entry updated successfully
+ *         description: Gratitude entry updated successfully
  *         content:
  *           application/json:
  *             schema:
@@ -438,33 +429,37 @@ router.get('/:id', heronAuthMiddleware, asyncHandler(journalController.handleSpe
  *                   example: true
  *                 code:
  *                   type: string
- *                   example: JOURNAL_ENTRY_UPDATED
+ *                   example: GRATITUDE_ENTRY_UPDATED
  *                 message:
  *                   type: string
- *                   example: Journal entry updated successfully
+ *                   example: Gratitude entry updated successfully
  *                 data:
  *                   type: object
  *                   properties:
- *                     journal_id:
+ *                     gratitude_id:
  *                       type: string
  *                       format: uuid
+ *                       example: 54a2a768-8e62-41ac-8b6e-e5092881000e
  *                     user_id:
  *                       type: string
  *                       format: uuid
+ *                       example: 6bf00386-77e5-4a02-9ed9-5f4f294ceb8b
+ *                     content:
+ *                       type: string
+ *                       example: "I'm grateful for the beautiful sunset and peaceful moments today."
  *                     created_at:
  *                       type: string
  *                       format: date-time
+ *                       example: 2025-10-02T12:08:11.190Z
  *                     updated_at:
  *                       type: string
  *                       format: date-time
+ *                       example: 2025-10-02T14:15:30.250Z
  *                     is_deleted:
  *                       type: boolean
- *                     title:
- *                       type: string
- *                     content:
- *                       type: string
+ *                       example: false
  *       "400":
- *         description: Bad request - invalid input
+ *         description: Bad request - validation failed
  *         content:
  *           application/json:
  *             schema:
@@ -473,18 +468,18 @@ router.get('/:id', heronAuthMiddleware, asyncHandler(journalController.handleSpe
  *               invalidId:
  *                 value:
  *                   success: false
- *                   code: BAD_REQUEST
- *                   message: "Bad Request: Invalid journal entry ID format"
- *               missingFields:
+ *                   code: INVALID_ID
+ *                   message: Gratitude ID must be a valid string.
+ *               invalidContent:
+ *                 value:
+ *                   success: false
+ *                   code: INVALID_CONTENT
+ *                   message: Content must be a non-empty string.
+ *               contentLength:
  *                 value:
  *                   success: false
  *                   code: BAD_REQUEST
- *                   message: "Bad Request: At least one of title or content must be provided"
- *               invalidTitle:
- *                 value:
- *                   success: false
- *                   code: BAD_REQUEST
- *                   message: "Bad Request: Title must be between 5 and 100 characters"
+ *                   message: Content must be between 3 and 500 characters.
  *       "401":
  *         description: Unauthorized - missing or invalid token
  *         content:
@@ -495,8 +490,8 @@ router.get('/:id', heronAuthMiddleware, asyncHandler(journalController.handleSpe
  *               unauthorized:
  *                 value:
  *                   success: false
- *                   code: "UNAUTHORIZED / AUTH_NO_TOKEN"
- *                   message: "Unauthorized: User ID missing / no token provided"
+ *                   code: UNAUTHORIZED
+ *                   message: "Unauthorized: User ID missing"
  *       "403":
  *         description: Forbidden - insufficient permissions
  *         content:
@@ -508,9 +503,9 @@ router.get('/:id', heronAuthMiddleware, asyncHandler(journalController.handleSpe
  *                 value:
  *                   success: false
  *                   code: FORBIDDEN
- *                   message: "Forbidden: Insufficient permissions / Forbidden: student role required"
+ *                   message: "Forbidden: student role required"
  *       "404":
- *         description: Journal entry not found
+ *         description: Not found - gratitude entry does not exist
  *         content:
  *           application/json:
  *             schema:
@@ -520,7 +515,7 @@ router.get('/:id', heronAuthMiddleware, asyncHandler(journalController.handleSpe
  *                 value:
  *                   success: false
  *                   code: NOT_FOUND
- *                   message: "Journal entry not found"
+ *                   message: Gratitude entry not found.
  *       "500":
  *         description: Internal server error
  *         content:
@@ -532,34 +527,32 @@ router.get('/:id', heronAuthMiddleware, asyncHandler(journalController.handleSpe
  *                 value:
  *                   success: false
  *                   code: INTERNAL_SERVER_ERROR
- *                   message: Internal server error
+ *                   message: An unexpected error occurred
  */
-router.put('/:id', heronAuthMiddleware, asyncHandler(journalController.handleJournalEntryUpdate.bind(journalController)));
+router.put('/:id', heronAuthMiddleware, asyncHandler(gratitudeJarController.updateEntry.bind(gratitudeJarController)));
 
 /**
  * @openapi
- * /mind-mirror/{id}:
+ * /gratitude-jar/{id}:
  *   delete:
- *     summary: Soft delete a journal entry
- *     description: >
- *       Marks a journal entry as deleted (soft delete).  
- *       Only the owner of the entry (student role) can perform this action.  
- *       If the entry does not exist or is already deleted, a 404 error is returned.
+ *     summary: Delete a gratitude jar entry
+ *     description: Soft deletes an existing gratitude jar entry for the authenticated student. The entry is marked as deleted but not permanently removed from the database.
  *     tags:
- *       - Journal / Mind Mirror
+ *       - Gratitude Jar
  *     security:
  *       - bearerAuth: []
  *     parameters:
  *       - name: id
  *         in: path
  *         required: true
- *         description: UUID of the journal entry to delete
+ *         description: The unique identifier of the gratitude jar entry to delete
  *         schema:
  *           type: string
  *           format: uuid
+ *           example: 54a2a768-8e62-41ac-8b6e-e5092881000e
  *     responses:
  *       "200":
- *         description: Journal entry deleted successfully
+ *         description: Gratitude entry deleted successfully
  *         content:
  *           application/json:
  *             schema:
@@ -570,12 +563,15 @@ router.put('/:id', heronAuthMiddleware, asyncHandler(journalController.handleJou
  *                   example: true
  *                 code:
  *                   type: string
- *                   example: JOURNAL_ENTRY_DELETED
+ *                   example: GRATITUDE_ENTRY_DELETED
  *                 message:
  *                   type: string
- *                   example: Journal entry deleted successfully
+ *                   example: Gratitude entry deleted successfully
+ *                 data:
+ *                   type: null
+ *                   example: null
  *       "400":
- *         description: Bad request - invalid input
+ *         description: Bad request - invalid ID format
  *         content:
  *           application/json:
  *             schema:
@@ -584,8 +580,8 @@ router.put('/:id', heronAuthMiddleware, asyncHandler(journalController.handleJou
  *               invalidId:
  *                 value:
  *                   success: false
- *                   code: BAD_REQUEST
- *                   message: "Bad Request: Invalid journal entry ID format"
+ *                   code: INVALID_ID
+ *                   message: Gratitude ID must be a valid string.
  *       "401":
  *         description: Unauthorized - missing or invalid token
  *         content:
@@ -596,8 +592,8 @@ router.put('/:id', heronAuthMiddleware, asyncHandler(journalController.handleJou
  *               unauthorized:
  *                 value:
  *                   success: false
- *                   code: "UNAUTHORIZED / AUTH_NO_TOKEN"
- *                   message: "Unauthorized: User ID missing / no token provided"
+ *                   code: UNAUTHORIZED
+ *                   message: "Unauthorized: User ID missing"
  *       "403":
  *         description: Forbidden - insufficient permissions
  *         content:
@@ -609,9 +605,9 @@ router.put('/:id', heronAuthMiddleware, asyncHandler(journalController.handleJou
  *                 value:
  *                   success: false
  *                   code: FORBIDDEN
- *                   message: "Forbidden: Insufficient permissions / Forbidden: student role required"
+ *                   message: "Forbidden: student role required"
  *       "404":
- *         description: Journal entry not found or already deleted
+ *         description: Not found - gratitude entry does not exist
  *         content:
  *           application/json:
  *             schema:
@@ -621,7 +617,7 @@ router.put('/:id', heronAuthMiddleware, asyncHandler(journalController.handleJou
  *                 value:
  *                   success: false
  *                   code: NOT_FOUND
- *                   message: "Journal entry not found"
+ *                   message: Gratitude entry not found.
  *       "500":
  *         description: Internal server error
  *         content:
@@ -633,8 +629,8 @@ router.put('/:id', heronAuthMiddleware, asyncHandler(journalController.handleJou
  *                 value:
  *                   success: false
  *                   code: INTERNAL_SERVER_ERROR
- *                   message: Internal server error
+ *                   message: An unexpected error occurred
  */
-router.delete('/:id', heronAuthMiddleware, asyncHandler(journalController.handleJournalEntryDelete.bind(journalController)));
+router.delete('/:id', heronAuthMiddleware, asyncHandler(gratitudeJarController.deleteEntry.bind(gratitudeJarController)));
 
 export default router;

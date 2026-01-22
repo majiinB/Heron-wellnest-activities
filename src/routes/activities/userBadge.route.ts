@@ -1,9 +1,9 @@
 import express, { Router } from 'express';
-import { heronAuthMiddleware } from '../middlewares/heronAuth.middleware.js';
-import { UserBadgeController } from '../controllers/userBadge.controller.js';
-import { asyncHandler } from '../utils/asyncHandler.util.js';
-import { UserBadgeRepository } from '../repository/activities/userBadge.repository.js';
-import { UserBadgeService } from '../services/activities/userBadge.service.js';
+import { heronAuthMiddleware } from '../../middlewares/heronAuth.middleware.js';
+import { UserBadgeController } from '../../controllers/activities/userBadge.controller.js';
+import { asyncHandler } from '../../utils/asyncHandler.util.js';
+import { UserBadgeRepository } from '../../repository/activities/userBadge.repository.js';
+import { UserBadgeService } from '../../services/activities/userBadge.service.js';
 
 const router: Router = express.Router();
 const userBadgeRepository = new UserBadgeRepository();

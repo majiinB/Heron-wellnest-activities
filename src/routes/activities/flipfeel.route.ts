@@ -1,10 +1,10 @@
 import express, { Router } from 'express';
-import { heronAuthMiddleware } from '../middlewares/heronAuth.middleware.js';
-import { asyncHandler } from '../utils/asyncHandler.util.js';
-import { FlipFeelService } from '../services/activities/flipFeel.service.js';
-import { FlipFeelController } from '../controllers/flipfeel.controller.js';
-import { FlipFeelQuestionRepository } from '../repository/activities/flipFeelQuestions.repository.js';
-import { FlipFeelRepository } from '../repository/activities/flipFeel.repository.js';
+import { heronAuthMiddleware } from '../../middlewares/heronAuth.middleware.js';
+import { asyncHandler } from '../../utils/asyncHandler.util.js';
+import { FlipFeelService } from '../../services/activities/flipFeel.service.js';
+import { FlipFeelController } from '../../controllers/activities/flipfeel.controller.js';
+import { FlipFeelQuestionRepository } from '../../repository/activities/flipFeelQuestions.repository.js';
+import { FlipFeelRepository } from '../../repository/activities/flipFeel.repository.js';
 
 const router: Router = express.Router();
 const flipFeelQuestionRepository = new FlipFeelQuestionRepository();
