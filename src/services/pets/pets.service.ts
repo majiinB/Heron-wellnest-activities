@@ -119,6 +119,32 @@ export class PetsService {
   }
 
   /**
+   * Update/rename pet
+   * @param owner_id - The UUID of the pet owner
+   * @param name - The new name for the pet
+   * @returns Updated Pet object
+   * @throws AppError if pet not found or name is invalid
+   */
+  public async updatePetName(owner_id: string, name: string): Promise<Pet> {
+    const pet = await this.petsRepo.getPetByOwnerId(owner_id);
+    
+    if (!pet) {
+      throw new AppError(404, "PET_NOT_FOUND", "Pet not found.", true);
+    }
+
+    const updatedPet = await this.petsRepo.updatePetStats(pet.pet_id, {
+      name: name,
+      last_interaction_at: new Date(),
+    });
+
+    if (!updatedPet) {
+      throw new AppError(500, "UPDATE_FAILED", "Failed to update pet name.", true);
+    }
+
+    return updatedPet;
+  }
+
+  /**
    * Pet/tap the pet to gain 1 coin
    * @param owner_id - The UUID of the pet owner
    * @returns Updated Pet object

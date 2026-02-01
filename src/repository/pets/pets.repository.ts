@@ -45,6 +45,7 @@ export class PetsRepository {
   public async updatePetStats(
     pet_id: string,
     updates: {
+      name?: string;
       pet_energy?: number;
       pet_hunger?: number;
       pet_cleanliness?: number;
