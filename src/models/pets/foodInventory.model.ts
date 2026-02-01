@@ -1,7 +1,8 @@
-import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, Unique } from "typeorm";
 import { PetFood } from "./petFood.model.js";
 
 @Entity("food_inventory")
+@Unique(["owner_id", "food_id"])
 export class FoodInventory {
   @PrimaryGeneratedColumn("uuid")
   inventory_id!: string;

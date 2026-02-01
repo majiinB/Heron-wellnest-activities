@@ -42,6 +42,9 @@ export class Pet {
   @CreateDateColumn({ type: "timestamptz", default: () => "CURRENT_TIMESTAMP", nullable: false })
   created_at!: Date;
 
+  @Column({ type: 'timestamptz', nullable: true })
+  sleep_until!: Date | null;
+
   @OneToMany(() => PetInteraction, (interaction) => interaction.pet_id)
   pet_interactions!: PetInteraction[];
 }

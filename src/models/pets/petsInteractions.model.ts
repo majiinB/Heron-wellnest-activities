@@ -9,7 +9,7 @@ export class PetInteraction {
   @JoinColumn({ name: "pet_id" })
   pet_id!: string;
 
-  @Column({ type: "enum", enum: ["feed", "clean", "play", "pet"], nullable: false })
+  @Column({ type: "enum", enum: ["feed", "clean", "play", "pet", "sleep"], nullable: false })
   interaction_type!: string;
 
   @CreateDateColumn({ type: "timestamptz" })
