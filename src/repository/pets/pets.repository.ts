@@ -48,7 +48,9 @@ export class PetsRepository {
       pet_energy?: number;
       pet_hunger?: number;
       pet_cleanliness?: number;
+      pet_happiness?: number;
       pet_mood?: string;
+      pet_coin?: number;
       experience?: number;
       level?: number;
       age_stage?: string;
