@@ -1,12 +1,18 @@
-import { Badge } from "../models/badge.model.js";
-import { FlipFeel } from "../models/flipFeel.model.js";
-import { FlipFeelChoice } from "../models/flipFeelChoices.model.js";
-import { FlipFeelQuestions } from "../models/flipFeelQuestions.model.js";
-import { FlipFeelResponse } from "../models/flipFeelResponse.model.js";
-import { GratitudeEntry } from "../models/gratitudeEntry.model.js";
-import { JournalEntry } from "../models/journalEntry.model.js";
-import { MoodCheckIn } from "../models/moodCheckIn.model.js";
-import { UserBadge } from "../models/userBadge.model.js";
+import { Badge } from "../models/activities/badge.model.js";
+import { FlipFeel } from "../models/activities/flipFeel.model.js";
+import { FlipFeelChoice } from "../models/activities/flipFeelChoices.model.js";
+import { FlipFeelQuestions } from "../models/activities/flipFeelQuestions.model.js";
+import { FlipFeelResponse } from "../models/activities/flipFeelResponse.model.js";
+import { GratitudeEntry } from "../models/activities/gratitudeEntry.model.js";
+import { JournalEntry } from "../models/activities/journalEntry.model.js";
+import { MoodCheckIn } from "../models/activities/moodCheckIn.model.js";
+import { UserBadge } from "../models/activities/userBadge.model.js";
+
+import { FoodInventory } from "../models/pets/foodInventory.model.js";
+import { Pet } from "../models/pets/pets.model.js";
+import { PetFood } from "../models/pets/petFood.model.js";
+import { PetInteraction } from "../models/pets/petsInteractions.model.js";
+
 import { env } from "./env.config.js";
 import { DataSource } from "typeorm";
 
@@ -38,7 +44,7 @@ export const AppDataSource = new DataSource({
   database: env.DB_NAME,
   entities: [JournalEntry, GratitudeEntry, FlipFeel, 
     FlipFeelChoice, FlipFeelQuestions, FlipFeelResponse, 
-    MoodCheckIn, UserBadge, Badge],
+    MoodCheckIn, UserBadge, Badge, Pet, PetFood, PetInteraction, FoodInventory],
   ...(env.NODE_ENV === "production" && {
     ssl: {
       rejectUnauthorized: false,
