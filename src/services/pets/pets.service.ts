@@ -150,7 +150,7 @@ export class PetsService {
    * @returns Updated Pet object
    * @throws AppError if pet is sleeping
    */
-  public async petThePet(owner_id: string): Promise<Pet> {
+  public async petThePet(owner_id: string, times_petted = 1 ): Promise<Pet> {
     const pet = await this.getPetByOwnerId(owner_id);
 
     // Check if pet is sleeping
@@ -161,9 +161,10 @@ export class PetsService {
 
     // Add 1 coin, add 1 happiness, decrease energy and update last interaction timestamp
     const updatedPet = await this.petsRepo.updatePetStats(pet.pet_id, {
-      pet_coin: Math.min(pet.pet_coin + 1, this.COIN_LIMIT),
-      pet_happiness: Math.min(pet.pet_happiness + 1, this.HAPPINESS_LIMIT),
-      pet_energy: Math.max(pet.pet_energy - 1, 0),
+      pet_coin: Math.min(pet.pet_coin + times_petted, this.COIN_LIMIT),
+      pet_happiness: Math.min(pet.pet_happiness + times_petted, this.HAPPINESS_LIMIT),
+      pet_cleanliness: Math.max(pet.pet_cleanliness - Math.floor(times_petted / 2), 0),
+      pet_energy: Math.max(pet.pet_energy - times_petted, 0),
       last_interaction_at: new Date(),
     });
 

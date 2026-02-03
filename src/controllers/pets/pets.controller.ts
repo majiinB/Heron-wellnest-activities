@@ -59,7 +59,12 @@ export class PetsController {
 
     validateUser(userId, userRole, "student");
 
-    const pet = await this.petsService.petThePet(userId!);
+    const timesPetted = req.body?.times_petted;
+    if (timesPetted !== undefined && (typeof timesPetted !== "number" || !Number.isInteger(timesPetted) || timesPetted < 1)) {
+      throw new AppError(400, "INVALID_TIMES_PETTED", "Invalid value for times_petted.", true);
+    }
+
+    const pet = await this.petsService.petThePet(userId!, timesPetted);
 
     const response: ApiResponse = {
       success: true,
