@@ -34,15 +34,14 @@ export class FoodInventoryRepository {
 
   public async getInventoryByOwnerAndFood(
     owner_id: string,
-    food_id: PetFood
+    food: PetFood
   ): Promise<FoodInventory | null> {
-    return this.repo.findOne({
-      where: {
-        owner_id,
-        food_id,
-      },
-      relations: ["food_id"],
-    });
+    return this.repo
+      .createQueryBuilder("inventory")
+      .leftJoinAndSelect("inventory.food_id", "food")
+      .where("inventory.owner_id = :owner_id", { owner_id })
+      .andWhere("inventory.food_id = :food_id", { food_id: food.food_id })
+      .getOne();
   }
 
   public async getInventoryByOwnerId(owner_id: string): Promise<FoodInventory[]> {

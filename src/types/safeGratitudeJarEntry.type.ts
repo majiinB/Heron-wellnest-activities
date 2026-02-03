@@ -1,4 +1,4 @@
-import type { GratitudeEntry } from "../models/gratitudeEntry.model.js";
+import type { GratitudeEntry } from "../models/activities/gratitudeEntry.model.js";
 
 /**
  * @description Represents a safe version of a GratitudeEntry with decrypted content.

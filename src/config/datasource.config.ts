@@ -31,7 +31,7 @@ import { DataSource } from "typeorm";
  *
  * @author Arthur M. Artugue
  * @created 2025-08-27
- * @updated 2025-10-01
+ * @updated 2026-02-01
  *
  * @see {@link https://typeorm.io/data-source-options}
  */

@@ -1,11 +1,11 @@
-import type { JournalEntry } from "../models/journalEntry.model.js";
+import type { JournalEntry } from "../models/activities/journalEntry.model.js";
 
 /**
  * Safe Journal Entry Type
  * 
  * @description Defines the structure for Journal Entry with its content and title already decrypted.
  * 
- * @file safeJournal.type.ts
+ * @file safeJournalEntry.type.ts
  * 
  * @author Arthur M. Artugue
  * @created 2025-09-25

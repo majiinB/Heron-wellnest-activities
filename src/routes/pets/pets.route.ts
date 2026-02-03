@@ -44,9 +44,64 @@ const petsController = new PetsController(petsService);
  *                     pet:
  *                       type: object
  *                       description: Complete pet entity
+ *                       properties:
+ *                         pet_id:
+ *                           type: string
+ *                           format: uuid
+ *                           example: "e537b676-3e23-43f4-bb82-160e2b078c25"
+ *                         owner_id:
+ *                           type: string
+ *                           format: uuid
+ *                           example: "c81daef9-bc32-4624-a595-3cdb0f66d559"
+ *                         name:
+ *                           type: string
+ *                           example: "Heron"
+ *                         species:
+ *                           type: string
+ *                           example: "heron"
+ *                         level:
+ *                           type: number
+ *                           example: 1
+ *                         experience:
+ *                           type: number
+ *                           example: 0
+ *                         age_stage:
+ *                           type: string
+ *                           example: "infant"
+ *                         pet_mood:
+ *                           type: string
+ *                           example: "excited"
+ *                         pet_coin:
+ *                           type: number
+ *                           example: 500
+ *                         pet_energy:
+ *                           type: number
+ *                           example: 100
+ *                         pet_hunger:
+ *                           type: number
+ *                           example: 100
+ *                         pet_cleanliness:
+ *                           type: number
+ *                           example: 100
+ *                         pet_happiness:
+ *                           type: number
+ *                           example: 100
+ *                         last_interaction_at:
+ *                           type: string
+ *                           format: date-time
+ *                           example: "2026-02-02T00:53:26.196Z"
+ *                         created_at:
+ *                           type: string
+ *                           format: date-time
+ *                           example: "2026-02-02T00:53:26.196Z"
+ *                         sleep_until:
+ *                           type: string
+ *                           format: date-time
+ *                           nullable: true
+ *                           example: null
  *                     level:
  *                       type: number
- *                       example: 5
+ *                       example: 1
  *                     coins:
  *                       type: number
  *                       example: 500
@@ -243,6 +298,61 @@ router.post('/', heronAuthMiddleware, asyncHandler(petsController.createPet.bind
  *                 data:
  *                   type: object
  *                   description: Updated pet entity
+ *                   properties:
+ *                     pet_id:
+ *                       type: string
+ *                       format: uuid
+ *                       example: "e537b676-3e23-43f4-bb82-160e2b078c25"
+ *                     owner_id:
+ *                       type: string
+ *                       format: uuid
+ *                       example: "c81daef9-bc32-4624-a595-3cdb0f66d559"
+ *                     name:
+ *                       type: string
+ *                       example: "Heron"
+ *                     species:
+ *                       type: string
+ *                       example: "heron"
+ *                     level:
+ *                       type: number
+ *                       example: 1
+ *                     experience:
+ *                       type: number
+ *                       example: 0
+ *                     age_stage:
+ *                       type: string
+ *                       example: "infant"
+ *                     pet_mood:
+ *                       type: string
+ *                       example: "excited"
+ *                     pet_coin:
+ *                       type: number
+ *                       example: 501
+ *                     pet_energy:
+ *                       type: number
+ *                       example: 99
+ *                     pet_hunger:
+ *                       type: number
+ *                       example: 100
+ *                     pet_cleanliness:
+ *                       type: number
+ *                       example: 100
+ *                     pet_happiness:
+ *                       type: number
+ *                       example: 100
+ *                     last_interaction_at:
+ *                       type: string
+ *                       format: date-time
+ *                       example: "2026-02-02T00:58:26.150Z"
+ *                     created_at:
+ *                       type: string
+ *                       format: date-time
+ *                       example: "2026-02-02T00:53:26.196Z"
+ *                     sleep_until:
+ *                       type: string
+ *                       format: date-time
+ *                       nullable: true
+ *                       example: null
  *       "400":
  *         description: Bad request - pet is sleeping
  *         content:
@@ -306,6 +416,61 @@ router.post('/pet', heronAuthMiddleware, asyncHandler(petsController.petThePet.b
  *                 data:
  *                   type: object
  *                   description: Updated pet entity
+ *                   properties:
+ *                     pet_id:
+ *                       type: string
+ *                       format: uuid
+ *                       example: "e537b676-3e23-43f4-bb82-160e2b078c25"
+ *                     owner_id:
+ *                       type: string
+ *                       format: uuid
+ *                       example: "c81daef9-bc32-4624-a595-3cdb0f66d559"
+ *                     name:
+ *                       type: string
+ *                       example: "Heron"
+ *                     species:
+ *                       type: string
+ *                       example: "heron"
+ *                     level:
+ *                       type: number
+ *                       example: 1
+ *                     experience:
+ *                       type: number
+ *                       example: 0
+ *                     age_stage:
+ *                       type: string
+ *                       example: "infant"
+ *                     pet_mood:
+ *                       type: string
+ *                       example: "sleepy"
+ *                     pet_coin:
+ *                       type: number
+ *                       example: 501
+ *                     pet_energy:
+ *                       type: number
+ *                       example: 99
+ *                     pet_hunger:
+ *                       type: number
+ *                       example: 100
+ *                     pet_cleanliness:
+ *                       type: number
+ *                       example: 100
+ *                     pet_happiness:
+ *                       type: number
+ *                       example: 100
+ *                     last_interaction_at:
+ *                       type: string
+ *                       format: date-time
+ *                       example: "2026-02-02T01:04:22.817Z"
+ *                     created_at:
+ *                       type: string
+ *                       format: date-time
+ *                       example: "2026-02-02T00:53:26.196Z"
+ *                     sleep_until:
+ *                       type: string
+ *                       format: date-time
+ *                       nullable: true
+ *                       example: "2026-02-02T02:04:22.817Z"
  *       "400":
  *         description: Bad request - pet is already sleeping
  *         content:

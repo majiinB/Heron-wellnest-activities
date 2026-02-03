@@ -1,4 +1,4 @@
-import type { GratitudeEntry } from "../models/gratitudeEntry.model.js";
+import type { GratitudeEntry } from "../models/activities/gratitudeEntry.model.js";
 import { AppError } from "../types/appError.type.js";
 import type { EncryptedField } from "../types/encryptedField.type.js";
 import type { SafeGratitudeJarEntry } from "../types/safeGratitudeJarEntry.type.js";

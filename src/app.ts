@@ -33,9 +33,9 @@ import journalRoute from './routes/activities/journal.routes.js'
 import moodCheckInRoute from './routes/activities/moodCheckIn.route.js';
 import gratitudeJarRoute from './routes/activities/gratitudeJar.routes.js';
 import flipAndFeelRoute from './routes/activities/flipfeel.route.js';
+import badgeRoute from './routes/activities/userBadge.route.js';
 import petsRoute from './routes/pets/pets.route.js';
 import foodRoute from './routes/pets/food.route.js';
-import badgeRoute from './routes/activities/userBadge.route.js';
 import { env } from './config/env.config.js';
 import fs from 'fs';
 
@@ -87,7 +87,7 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 app.get('/api/v1/activities/health', (_req, res) => {
   res.status(200).json({ status: 'ok' });
 });
-
+ 
 app.use('/api/v1/activities/mind-mirror', journalRoute);
 app.use('/api/v1/activities/mood-check-in', moodCheckInRoute);
 app.use('/api/v1/activities/gratitude-jar', gratitudeJarRoute);
