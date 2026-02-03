@@ -238,7 +238,8 @@ export class PetsService {
       pet_energy: this.ENERGY_LIMIT,
       pet_coin: Math.min(pet.pet_coin + 5, this.COIN_LIMIT),
       pet_hunger: Math.max(pet.pet_hunger - 20, 0),
-      pet_mood: pet.pet_hunger <= 10 ? "sad" : "excited",
+      pet_happiness: Math.max(pet.pet_happiness - 5, 0),
+      pet_mood: pet.pet_happiness <= 50 || pet.pet_hunger <= 20 ? "sad" : "excited",
       pet_cleanliness: Math.max(pet.pet_cleanliness - 10, 0),
       last_interaction_at: new Date(),
     });
@@ -346,7 +347,7 @@ export class PetsService {
     const pet = await this.getPetByOwnerId(owner_id);
 
     const now = new Date();
-    const isSleeping = pet.sleep_until !== null && now < pet.sleep_until;
+    const isSleeping = pet.sleep_until !== null;
     const canWakeUp = pet.sleep_until !== null && now >= pet.sleep_until;
     
     let sleepRemainingMinutes: number | null = null;
