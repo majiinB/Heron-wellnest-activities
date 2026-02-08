@@ -17,11 +17,14 @@ export class QuestDefinition {
   @Column({ type: "int", default: 10, nullable: false })
   reward_experience!: number;
 
-  @Column({ type: "int", default: 5, nullable: false })
+  @Column({ type: "int", default: 5, nullable: true })
   hunger_recovery!: number;
 
-  @Column({ type: "uuid", nullable: false })
+  @Column({ type: "uuid", nullable: true })
   reward_food_id!: string;
+  
+  @Column({ type: "enum", enum: ["well-being", "pet-care", "pet-interaction"], nullable: true })
+  quest_tag!: string;
 
   @Column({ type: "boolean", default: true, nullable: false })
   is_active!: boolean;
