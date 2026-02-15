@@ -8,7 +8,7 @@ export class QuestDefinition {
   @Column({ type: "varchar", length: 100, unique: true, nullable: false })
   name!: string;
 
-  @Column({ type: "text", length: 500, nullable: true })
+  @Column({ type: "varchar", length: 500, nullable: true })
   description!: string | null;
 
   @Column({ type: "int", default: 1, nullable: false })
@@ -22,9 +22,18 @@ export class QuestDefinition {
 
   @Column({ type: "uuid", nullable: true })
   reward_food_id!: string;
+
+  @Column({ type: "uuid", nullable: true })
+  reward_decoration_id!: string;
   
   @Column({ type: "enum", enum: ["well-being", "pet-care", "pet-interaction"], nullable: true })
   quest_tag!: string;
+
+  @Column({ type: "enum", enum: ["coins", "xp", "food", "decoration"], nullable: true })
+  reward_type!: string;
+
+  @Column({ type: "text", nullable: true })
+  system_message!: string;
 
   @Column({ type: "boolean", default: true, nullable: false })
   is_active!: boolean;

@@ -36,6 +36,7 @@ import flipAndFeelRoute from './routes/activities/flipfeel.route.js';
 import badgeRoute from './routes/activities/userBadge.route.js';
 import petsRoute from './routes/pets/pets.route.js';
 import foodRoute from './routes/pets/food.route.js';
+import questRoute from './routes/quests/quests.route.js';
 import { env } from './config/env.config.js';
 import fs from 'fs';
 
@@ -95,6 +96,7 @@ app.use('/api/v1/activities/flip-and-feel', flipAndFeelRoute);
 app.use('/api/v1/activities/badges', badgeRoute);
 app.use('/api/v1/activities/pets', petsRoute);
 app.use('/api/v1/activities/food', foodRoute);
+app.use('/api/v1/activities/quests', questRoute);
 app.use(errorMiddleware); // Custom error handling middleware
 
 export default app;

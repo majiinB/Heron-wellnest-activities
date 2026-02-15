@@ -1,5 +1,5 @@
 import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
-import { QuestDefinition } from "./questDefinitions.js";
+import { QuestDefinition } from "./questDefinitions.model.js";
 
 @Entity("daily_quests")
 export class DailyQuest {
