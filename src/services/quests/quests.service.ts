@@ -2,22 +2,37 @@ import { AppError } from "../../types/appError.type.js";
 import { DailyQuestsRepository } from "../../repository/quests/dailyQuests.repository.js";
 import { UserQuestsRepository } from "../../repository/quests/userQuests.repository.js";
 import { QuestDefinitionsRepository } from "../../repository/quests/questDefinitions.repository.js";
+import { PetsRepository } from "../../repository/pets/pets.repository.js";
 import type { UserQuest } from "../../models/quests/userQuests.model.js";
 import type { DailyQuest } from "../../models/quests/dailyQuests.model.js";
+import { FoodInventoryRepository } from "../../repository/pets/foodInventory.repository.js";
+import { PetFoodRepository } from "../../repository/pets/petFood.repsository.js";
+import type { FoodInventory } from "../../models/pets/foodInventory.model.js";
 
 export class QuestsService {
   private dailyQuestsRepo: DailyQuestsRepository;
   private userQuestsRepo: UserQuestsRepository;
   private questDefinitionsRepo: QuestDefinitionsRepository;
+  private petsRepo: PetsRepository;
+  private foodInventoryRepo: FoodInventoryRepository;
+  private petFoodRepo: PetFoodRepository;
+  private readonly COIN_LIMIT=9999;
+  private readonly HUNGER_LIMIT=100;
 
   constructor(
     dailyQuestsRepo: DailyQuestsRepository,
     userQuestsRepo: UserQuestsRepository,
-    questDefinitionsRepo: QuestDefinitionsRepository
+    questDefinitionsRepo: QuestDefinitionsRepository,
+    petsRepo: PetsRepository,
+    foodInventoryRepo: FoodInventoryRepository,
+    petFoodRepo: PetFoodRepository
   ) {
     this.dailyQuestsRepo = dailyQuestsRepo;
     this.userQuestsRepo = userQuestsRepo;
     this.questDefinitionsRepo = questDefinitionsRepo;
+    this.petsRepo = petsRepo;
+    this.foodInventoryRepo = foodInventoryRepo;
+    this.petFoodRepo = petFoodRepo;
   }
 
   /**
@@ -168,6 +183,51 @@ export class QuestsService {
         "QUEST_NOT_COMPLETE",
         "Quest must be completed before it can be claimed. Current status: " + userQuest.status
       );
+    }
+
+    // Perform the reward logic
+    const questDef = userQuest.daily_quest_id.quest_definition_id;
+    const pet = await this.petsRepo.getPetByOwnerId(owner_id);
+
+    if (!pet) {
+      throw new AppError(404, "PET_NOT_FOUND", "Pet not found for the user");
+    }
+
+    await this.petsRepo.updatePetStats(pet.pet_id, {
+      pet_coin: Math.min(pet.pet_coin + questDef.reward_money, this.COIN_LIMIT),
+      experience: pet.experience + questDef.reward_experience,
+      pet_hunger: Math.min(pet.pet_hunger + questDef.hunger_recovery, this.HUNGER_LIMIT),
+    });
+
+    if(questDef.reward_type === "food" && questDef.reward_food_id) {
+      const rewardPetFood = await this.petFoodRepo.getFoodById(questDef.reward_food_id);
+
+      if (!rewardPetFood) {
+        throw new AppError(404, "FOOD_NOT_FOUND", "Reward food item not found");
+      }
+
+      // Check if food already exists in inventory
+      const existingInventory = await this.foodInventoryRepo.getInventoryByOwnerAndFood(
+        owner_id,
+        rewardPetFood
+      );
+      
+      let inventory: FoodInventory;
+      
+      if (existingInventory) {
+        // Increment existing quantity
+        const updated = await this.foodInventoryRepo.updateQuantity(
+          existingInventory.inventory_id,
+          existingInventory.quantity + 1
+        );
+        if (!updated) {
+          throw new AppError(500, "UPDATE_FAILED", "Failed to update inventory.", true);
+        }
+        inventory = updated;
+      } else {
+        // Create new inventory record
+        inventory = await this.foodInventoryRepo.addFoodToInventory(owner_id, rewardPetFood, 1);
+      }
     }
 
     // Mark as claimed
