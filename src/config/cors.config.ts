@@ -1,17 +1,15 @@
 import type { CorsOptions } from "cors";
 import { env } from "./env.config.js";
 
-const staticAllowlist = [
-  "https://wellnest-smoky.vercel.app",
-];
+// const staticAllowlist = [];
 
-// // Parse comma-separated env list (exact origin strings)
-// const envAllowlist = (env.CORS_ALLOWED_ORIGINS ?? "")
-//   .split(",")
-//   .map(s => s.trim())
-//   .filter(Boolean);
+// Parse comma-separated env list (exact origin strings)
+const envAllowlist = (env.CORS_ALLOWED_ORIGINS ?? "")
+  .split(",")
+  .map((s: string) => s.trim())
+  .filter(Boolean);
 
-const allowlist = new Set<string>([...staticAllowlist]);
+const allowlist = new Set<string>([...envAllowlist]);
 
 function isLocalhostOrigin(origin: string): boolean {
   try {
