@@ -37,7 +37,7 @@ function isLocalhostOrigin(origin: string): boolean {
  *  
  * @author Arthur M. Artugue
  * @created 2025-08-17
- * @updated 2025-08-20
+ * @updated 2026-03-04
 */
 export const corsOptions: CorsOptions = {
   origin: (origin: string | undefined, callback) => {
