@@ -54,10 +54,10 @@ export const corsOptions: CorsOptions = {
       return callback(null, true);
     }
 
-    // // Optionally allow localhost to hit prod (comment out if you don’t want this)
-    // if (isLocalhostOrigin(origin) && env.NODE_ENV === "production") {
-    //   return callback(null, true);
-    // }
+    // Optionally allow localhost to hit prod (comment out if you don’t want this)
+    if (isLocalhostOrigin(origin)) {
+      return callback(null, true);
+    }
 
     return callback(new Error("Not allowed by CORS"), false);
   },
