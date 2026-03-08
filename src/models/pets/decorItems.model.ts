@@ -9,7 +9,7 @@ export class DecorItem {
   decor_name!: string;
 
   @Column({ type:"enum", enum: ['clock', 'chair', 'desk', 'wallpaper', 'tiles'], nullable: false })
-  decor_type!: string;
+  decor_type!: 'clock' | 'chair' | 'desk' | 'wallpaper' | 'tiles';
 
   @Column({ type: "varchar", length: 255, nullable: true })
   decor_description!: string | null;

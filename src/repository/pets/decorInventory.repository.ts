@@ -17,7 +17,7 @@ export class DecorInventoryRepository {
   ): Promise<DecorInventory> {
     const inventory = this.repo.create({
       owner_id,
-      decor_id,
+      decor_item: decor_id,
       is_equipped,
     });
     return this.repo.save(inventory);
@@ -28,7 +28,7 @@ export class DecorInventoryRepository {
       where: {
         inventory_id,
       },
-      relations: ["decor_id"],
+      relations: ["decor_item"],
     });
   }
 
@@ -39,9 +39,9 @@ export class DecorInventoryRepository {
     return this.repo.findOne({
       where: {
         owner_id,
-        decor_id,
+        decor_item: decor_id,
       },
-      relations: ["decor_id"],
+      relations: ["decor_item"],
     });
   }
 
@@ -50,7 +50,7 @@ export class DecorInventoryRepository {
       where: {
         owner_id,
       },
-      relations: ["decor_id"],
+      relations: ["decor_item"],
       order: {
         acquired_at: "DESC",
       },
@@ -63,7 +63,7 @@ export class DecorInventoryRepository {
         owner_id,
         is_equipped: true,
       },
-      relations: ["decor_id"],
+      relations: ["decor_item"],
     });
   }
 
@@ -100,11 +100,11 @@ export class DecorInventoryRepository {
         owner_id,
         is_equipped: true,
       },
-      relations: ["decor_id"],
+      relations: ["decor_item"],
     });
 
     for (const item of inventory) {
-      if (item.decor_id.decor_type === decor_type) {
+      if (item.decor_item.decor_type === decor_type) {
         item.is_equipped = false;
         await this.repo.save(item);
       }
