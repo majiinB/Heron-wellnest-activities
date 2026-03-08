@@ -18,6 +18,8 @@ import { DataSource } from "typeorm";
 import { QuestDefinition } from "../models/quests/questDefinitions.model.js";
 import { DailyQuest } from "../models/quests/dailyQuests.model.js";
 import { UserQuest } from "../models/quests/userQuests.model.js";
+import { DecorItem } from "../models/pets/decorItems.model.js";
+import { DecorInventory } from "../models/pets/decorInventory.model.js";
 
 /**
  * Data source configuration for TypeORM.
@@ -47,7 +49,7 @@ export const AppDataSource = new DataSource({
   database: env.DB_NAME,
   entities: [JournalEntry, GratitudeEntry, FlipFeel, 
     FlipFeelChoice, FlipFeelQuestions, FlipFeelResponse, 
-    MoodCheckIn, UserBadge, Badge, Pet, PetFood, PetInteraction, FoodInventory, QuestDefinition, DailyQuest, UserQuest],
+    MoodCheckIn, UserBadge, Badge, Pet, PetFood, PetInteraction, FoodInventory, QuestDefinition, DailyQuest, UserQuest, DecorItem, DecorInventory],
   ...(env.NODE_ENV === "production" && {
     ssl: {
       rejectUnauthorized: false,

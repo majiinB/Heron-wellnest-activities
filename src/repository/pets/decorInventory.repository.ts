@@ -39,7 +39,7 @@ export class DecorInventoryRepository {
     return this.repo.findOne({
       where: {
         owner_id,
-        decor_item: decor_id,
+        decor_item: { decor_id: decor_id.decor_id },
       },
       relations: ["decor_item"],
     });
