@@ -48,8 +48,9 @@ export const envSchema = z.object({
   CONTENT_ENCRYPTION_KEY_LENGTH: z.coerce.number().default(32), // in bytes
 
   // Pub/Sub
-  PUBSUB_JOURNAL_TOPIC: z.string().min(1, "PUBSUB_JOURNAL_TOPIC is required").default("journal-topic"),
-  PUBSUB_ACTIVITY_TOPIC: z.string().min(1, "PUBSUB_ACTIVITY_TOPIC is required").default("activity-topic"),
+  PUBSUB_JOURNAL_TOPIC: z.string().min(1, "PUBSUB_JOURNAL_TOPIC is required"),
+  PUBSUB_ACTIVITY_TOPIC: z.string().min(1, "PUBSUB_ACTIVITY_TOPIC is required"),
+  PUBSUB_NOTIFICATION_TOPIC: z.string().min(1, "PUBSUB_NOTIFICATION_TOPIC is required"),
 
   // CORS
   CORS_ALLOWED_ORIGINS: z.string(),
