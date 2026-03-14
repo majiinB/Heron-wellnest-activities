@@ -91,20 +91,6 @@ app.get('/api/v1/activities/health', (_req, res) => {
   res.status(200).json({ status: 'ok' });
 });
 
-app.get('/api/v1/activities/test', async (req, res) => {
-  await publishMessage(env.PUBSUB_NOTIFICATION_TOPIC, {
-        userId: "550e8400-e29b-41d4-a716-446655440000",
-        type: "activities",
-        title: "Test Activity Event",
-        content: "Testing Pub/Sub integration from the test endpoint",
-        data: {
-          activityType: "test-activity",
-          timestamp: new Date().toISOString(),
-        },
-      });
-  res.status(200).json({ message: 'Test endpoint is working!' });
-});
-
 app.use('/api/v1/activities/mind-mirror', journalRoute);
 app.use('/api/v1/activities/mood-check-in', moodCheckInRoute);
 app.use('/api/v1/activities/gratitude-jar', gratitudeJarRoute);
