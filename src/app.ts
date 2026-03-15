@@ -40,7 +40,6 @@ import questRoute from './routes/quests/quests.route.js';
 import decorRoute from './routes/pets/decor.route.js';
 import { env } from './config/env.config.js';
 import fs from 'fs';
-import { publishMessage } from './utils/pubsub.util.js';
 
 const app : express.Express = express();
 const isTS = fs.existsSync('./src/routes');

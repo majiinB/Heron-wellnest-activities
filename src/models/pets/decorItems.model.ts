@@ -20,6 +20,9 @@ export class DecorItem {
   @Column({ type: "int", nullable: false })
   decor_price!: number;
 
+  @Column({ type: "jsonb", nullable: true })
+  metadata!: Record<string, unknown>; // This will hold the parsed JSON data from the 'data' column
+
   @CreateDateColumn({ type: "timestamptz" })
   created_at!: Date;
 
