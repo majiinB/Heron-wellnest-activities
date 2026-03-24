@@ -51,6 +51,49 @@ export class QuestsService {
     );
   }
 
+  private getDailyQuestId(userQuest: UserQuest): string {
+    return typeof userQuest.daily_quest_id === "object" && userQuest.daily_quest_id !== null
+      ? userQuest.daily_quest_id.daily_quest_id
+      : (userQuest.daily_quest_id as unknown as string);
+  }
+
+  private getQuestStatusPriority(status: string): number {
+    const statusPriority: Record<string, number> = {
+      pending: 0,
+      expired: 1,
+      complete: 2,
+      claimed: 3,
+    };
+
+    return statusPriority[status] ?? -1;
+  }
+
+  private shouldReplaceQuest(existingQuest: UserQuest, candidateQuest: UserQuest): boolean {
+    const existingPriority = this.getQuestStatusPriority(existingQuest.status);
+    const candidatePriority = this.getQuestStatusPriority(candidateQuest.status);
+
+    if (candidatePriority !== existingPriority) {
+      return candidatePriority > existingPriority;
+    }
+
+    return candidateQuest.created_at > existingQuest.created_at;
+  }
+
+  private deduplicateUserQuests(userQuests: UserQuest[]): Map<string, UserQuest> {
+    const deduplicatedMap = new Map<string, UserQuest>();
+
+    for (const userQuest of userQuests) {
+      const dailyQuestId = this.getDailyQuestId(userQuest);
+      const existingQuest = deduplicatedMap.get(dailyQuestId);
+
+      if (!existingQuest || this.shouldReplaceQuest(existingQuest, userQuest)) {
+        deduplicatedMap.set(dailyQuestId, userQuest);
+      }
+    }
+
+    return deduplicatedMap;
+  }
+
   /**
    * Get today's daily quests (both global and personalized for the user)
    * @param owner_id - Optional user ID to include personalized quests
@@ -93,17 +136,14 @@ export class QuestsService {
       this.isToday(userQuest.created_at)
     );
 
+    // Deduplicate existing records for today in case legacy duplicates already exist
+    const deduplicatedMap = this.deduplicateUserQuests(todaysUserQuests);
+
     // Get today's daily quests (global + personalized)
     const todaysDailyQuests = await this.getTodaysDailyQuests(owner_id);
 
     // Find which daily quests don't have user quest records yet
-    const existingDailyQuestIds = new Set(
-      todaysUserQuests.map((uq) => 
-        typeof uq.daily_quest_id === 'object' && uq.daily_quest_id !== null
-          ? uq.daily_quest_id.daily_quest_id
-          : uq.daily_quest_id
-      )
-    );
+    const existingDailyQuestIds = new Set(deduplicatedMap.keys());
 
     const missingDailyQuests = todaysDailyQuests.filter(
       (dq) => !existingDailyQuestIds.has(dq.daily_quest_id)
@@ -126,22 +166,26 @@ export class QuestsService {
       newUserQuests.push(newUserQuest);
     }
 
-    // Combine existing and newly created user quests
-    const allUserQuests = [...todaysUserQuests];
-
-    // Fetch the newly created quests with their relations
+    // Fetch the newly created quests with their relations and merge into deduplicated map
     if (newUserQuests.length > 0) {
       for (const newQuest of newUserQuests) {
         const questWithRelations = await this.userQuestsRepo.getUserQuestById(
           newQuest.user_quest_id
         );
         if (questWithRelations) {
-          allUserQuests.push(questWithRelations);
+          const dailyQuestId = this.getDailyQuestId(questWithRelations);
+          const existingQuest = deduplicatedMap.get(dailyQuestId);
+
+          if (!existingQuest || this.shouldReplaceQuest(existingQuest, questWithRelations)) {
+            deduplicatedMap.set(dailyQuestId, questWithRelations);
+          }
         }
       }
     }
 
-    return allUserQuests;
+    return Array.from(deduplicatedMap.values()).sort(
+      (a, b) => b.created_at.getTime() - a.created_at.getTime()
+    );
   }
 
   /**
