@@ -163,8 +163,9 @@ export class PetsService {
     const updatedPet = await this.petsRepo.updatePetStats(pet.pet_id, {
       pet_coin: Math.min(pet.pet_coin + times_petted, this.COIN_LIMIT),
       pet_happiness: Math.min(pet.pet_happiness + times_petted, this.HAPPINESS_LIMIT),
-      pet_cleanliness: Math.max(pet.pet_cleanliness - Math.floor(times_petted / 2), 0),
-      pet_energy: Math.max(pet.pet_energy - times_petted, 0),
+      pet_cleanliness: Math.max(pet.pet_cleanliness - times_petted, 0),
+      pet_energy: Math.max(pet.pet_energy - times_petted * 2, 0),
+      pet_hunger: Math.max(pet.pet_hunger - times_petted * 2, 0),
       last_interaction_at: new Date(),
     });
 
@@ -241,7 +242,7 @@ export class PetsService {
       pet_hunger: Math.max(pet.pet_hunger - 20, 0),
       pet_happiness: Math.max(pet.pet_happiness - 5, 0),
       pet_mood: pet.pet_happiness <= 50 || pet.pet_hunger <= 20 ? "sad" : "excited",
-      pet_cleanliness: Math.max(pet.pet_cleanliness - 10, 0),
+      pet_cleanliness: Math.max(pet.pet_cleanliness - 30, 0),
       last_interaction_at: new Date(),
     });
 
@@ -277,7 +278,7 @@ export class PetsService {
     const updatedPet = await this.petsRepo.updatePetStats(pet.pet_id, {
       pet_cleanliness: this.CLEANLINESS_LIMIT,
       pet_coin: Math.min(pet.pet_coin + 8, this.COIN_LIMIT),
-      pet_energy: Math.max(pet.pet_energy - 10, 0),
+      pet_energy: Math.max(pet.pet_energy - 20, 0),
       last_interaction_at: new Date(),
     });
 
