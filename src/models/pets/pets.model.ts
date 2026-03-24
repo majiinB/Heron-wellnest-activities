@@ -27,19 +27,19 @@ export class Pet {
   @Column({type: "enum", enum: ["excited", "sad", "puppy_eyes", "frustrated", "sleepy"], default: "excited", nullable: false   })
   pet_mood!: string;
 
-  @Column({ type: "int", default: 500, nullable: false })
+  @Column({ type: "int", default: 250, nullable: false })
   pet_coin!: number;
 
-  @Column({ type: "int", default: 100, nullable: false })
+  @Column({ type: "int", default: 50, nullable: false })
   pet_energy!: number;
 
-  @Column({ type: "int", default: 100, nullable: false })
+  @Column({ type: "int", default: 50, nullable: false })
   pet_hunger!: number;
 
-  @Column({ type: "int", default: 100, nullable: false })
+  @Column({ type: "int", default: 50, nullable: false })
   pet_cleanliness!: number;
 
-  @Column({ type: "int", default: 100, nullable: false })
+  @Column({ type: "int", default: 50, nullable: false })
   pet_happiness!: number;
 
   @UpdateDateColumn({ type: "timestamptz", nullable: false })
