@@ -7,7 +7,7 @@ import { validateUser } from "../../utils/authorization.util.js";
 import type { SafeJournalEntry } from "../../types/safeJournalEntry.type.js";
 import type { PaginatedJournalEntries } from "../../types/paginatedJournalEtntries.type.js";
 import { validate as isUuid } from "uuid";
-import { isNumbersOnly, looksLikeNonsense } from "../../utils/journal.util.js";
+import { isNumbersOnly } from "../../utils/journal.util.js";
 
 /**
  * Controller class for handling Journal entry-related HTTP requests.
@@ -83,7 +83,7 @@ export class JournalController {
       );
     }
 
-    if(isNumbersOnly(titleTrimmed) || looksLikeNonsense(contentTrimmed)){
+    if(isNumbersOnly(titleTrimmed)){
       throw new AppError(
         400,
         'BAD_REQUEST',
@@ -101,7 +101,7 @@ export class JournalController {
       );
     }
 
-    if(isNumbersOnly(contentTrimmed) || looksLikeNonsense(contentTrimmed)){
+    if(isNumbersOnly(contentTrimmed)){
       throw new AppError(
         400,
         'BAD_REQUEST',
@@ -253,7 +253,7 @@ export class JournalController {
       );
     }
 
-    if(titleTrimmed && (isNumbersOnly(titleTrimmed) || looksLikeNonsense(titleTrimmed))){
+    if(titleTrimmed && (isNumbersOnly(titleTrimmed))){
       throw new AppError(
         400,
         'BAD_REQUEST',
@@ -271,7 +271,7 @@ export class JournalController {
       );
     }
 
-    if(contentTrimmed && (isNumbersOnly(contentTrimmed) || looksLikeNonsense(contentTrimmed))){
+    if(contentTrimmed && isNumbersOnly(contentTrimmed)){
       throw new AppError(
         400,
         'BAD_REQUEST',
