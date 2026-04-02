@@ -11,6 +11,11 @@ export class PetsService {
   private readonly HAPPINESS_LIMIT=100;
   private readonly MAX_LEVEL=50;
   private readonly BASE_EXP_PER_LEVEL=100; // Base XP needed for level 2
+  private readonly DAILY_DECAY_INTERVAL_MS = 24 * 60 * 60 * 1000;
+  private readonly DAILY_HUNGER_DECAY = 8;
+  private readonly DAILY_HAPPINESS_DECAY = 5;
+  private readonly DAILY_CLEANLINESS_DECAY = 10;
+  private readonly DAILY_ENERGY_DECAY = 3;
 
   constructor(petsRepo: PetsRepository) {
     this.petsRepo = petsRepo;
@@ -65,6 +70,72 @@ export class PetsService {
   }
 
   /**
+   * Derive a pet mood from its current stats
+   * @param pet - Pet object to evaluate
+   * @returns Mood string suitable for storage
+   */
+  private derivePetMood(pet: Pet): string {
+    if (pet.pet_energy <= 10 || pet.pet_hunger <= 15 || pet.pet_happiness <= 15) {
+      return "sad";
+    }
+
+    if (pet.pet_cleanliness <= 20 || pet.pet_hunger <= 35 || pet.pet_happiness <= 35) {
+      return "frustrated";
+    }
+
+    if (pet.pet_energy <= 35 || pet.pet_cleanliness <= 45) {
+      return "puppy_eyes";
+    }
+
+    return "excited";
+  }
+
+  /**
+   * Apply passive stat decay based on time since the last interaction.
+   * Decay is only applied when at least one full day has passed.
+   * @param pet - Pet object to update
+   * @returns Updated pet after decay, or the original pet if no decay is needed
+   */
+  private async applyPassiveDecay(pet: Pet): Promise<Pet> {
+    const now = new Date();
+
+    if (pet.sleep_until !== null && now < pet.sleep_until) {
+      return pet;
+    }
+
+    const elapsedDays = Math.floor(
+      (now.getTime() - pet.last_interaction_at.getTime()) / this.DAILY_DECAY_INTERVAL_MS
+    );
+
+    if (elapsedDays <= 0) {
+      return pet;
+    }
+
+    const nextPetState: Pet = {
+      ...pet,
+      pet_hunger: Math.max(pet.pet_hunger - elapsedDays * this.DAILY_HUNGER_DECAY, 0),
+      pet_happiness: Math.max(pet.pet_happiness - elapsedDays * this.DAILY_HAPPINESS_DECAY, 0),
+      pet_cleanliness: Math.max(pet.pet_cleanliness - elapsedDays * this.DAILY_CLEANLINESS_DECAY, 0),
+      pet_energy: Math.max(pet.pet_energy - elapsedDays * this.DAILY_ENERGY_DECAY, 0),
+    };
+
+    const updatedPet = await this.petsRepo.updatePetStats(pet.pet_id, {
+      pet_hunger: nextPetState.pet_hunger,
+      pet_happiness: nextPetState.pet_happiness,
+      pet_cleanliness: nextPetState.pet_cleanliness,
+      pet_energy: nextPetState.pet_energy,
+      pet_mood: this.derivePetMood(nextPetState),
+      last_interaction_at: now,
+    });
+
+    if (!updatedPet) {
+      throw new AppError(500, "DECAY_UPDATE_FAILED", "Failed to apply passive pet decay.", true);
+    }
+
+    return updatedPet;
+  }
+
+  /**
    * Update pet level based on current experience
    * Should be called after any XP gain
    * @param pet - Pet object to update
@@ -97,6 +168,8 @@ export class PetsService {
     if (!pet) {
       pet = await this.petsRepo.createPet(owner_id, "Heron", "heron");
     }
+
+    pet = await this.applyPassiveDecay(pet);
 
     const leveledPet = await this.updatePetLevel(pet);
     if (!leveledPet) {
