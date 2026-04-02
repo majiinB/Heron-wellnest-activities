@@ -3,17 +3,18 @@ import { DailyQuestsRepository } from "../../repository/quests/dailyQuests.repos
 import { UserQuestsRepository } from "../../repository/quests/userQuests.repository.js";
 import { QuestDefinitionsRepository } from "../../repository/quests/questDefinitions.repository.js";
 import { PetsRepository } from "../../repository/pets/pets.repository.js";
+import { PetsService } from "../pets/pets.service.js";
 import type { UserQuest } from "../../models/quests/userQuests.model.js";
 import type { DailyQuest } from "../../models/quests/dailyQuests.model.js";
 import { FoodInventoryRepository } from "../../repository/pets/foodInventory.repository.js";
 import { PetFoodRepository } from "../../repository/pets/petFood.repsository.js";
-import type { FoodInventory } from "../../models/pets/foodInventory.model.js";
 
 export class QuestsService {
   private dailyQuestsRepo: DailyQuestsRepository;
   private userQuestsRepo: UserQuestsRepository;
   private questDefinitionsRepo: QuestDefinitionsRepository;
   private petsRepo: PetsRepository;
+  private petsService: PetsService;
   private foodInventoryRepo: FoodInventoryRepository;
   private petFoodRepo: PetFoodRepository;
   private readonly COIN_LIMIT=9999;
@@ -24,6 +25,7 @@ export class QuestsService {
     userQuestsRepo: UserQuestsRepository,
     questDefinitionsRepo: QuestDefinitionsRepository,
     petsRepo: PetsRepository,
+    petsService: PetsService,
     foodInventoryRepo: FoodInventoryRepository,
     petFoodRepo: PetFoodRepository
   ) {
@@ -31,6 +33,7 @@ export class QuestsService {
     this.userQuestsRepo = userQuestsRepo;
     this.questDefinitionsRepo = questDefinitionsRepo;
     this.petsRepo = petsRepo;
+    this.petsService = petsService;
     this.foodInventoryRepo = foodInventoryRepo;
     this.petFoodRepo = petFoodRepo;
   }
@@ -237,11 +240,20 @@ export class QuestsService {
       throw new AppError(404, "PET_NOT_FOUND", "Pet not found for the user");
     }
 
-    await this.petsRepo.updatePetStats(pet.pet_id, {
+    const updatedPet = await this.petsRepo.updatePetStats(pet.pet_id, {
       pet_coin: Math.min(pet.pet_coin + questDef.reward_money, this.COIN_LIMIT),
       experience: pet.experience + questDef.reward_experience,
       pet_hunger: Math.min(pet.pet_hunger + questDef.hunger_recovery, this.HUNGER_LIMIT),
     });
+
+    if (!updatedPet) {
+      throw new AppError(500, "UPDATE_FAILED", "Failed to update pet rewards");
+    }
+
+    const leveledUpPet = await this.petsService.updatePetLevel(updatedPet);
+    if (!leveledUpPet) {
+      throw new AppError(500, "LEVEL_UPDATE_FAILED", "Failed to update pet level");
+    }
 
     if(questDef.reward_type === "food" && questDef.reward_food_id) {
       const rewardPetFood = await this.petFoodRepo.getFoodById(questDef.reward_food_id);
@@ -256,8 +268,6 @@ export class QuestsService {
         rewardPetFood
       );
       
-      let inventory: FoodInventory;
-      
       if (existingInventory) {
         // Increment existing quantity
         const updated = await this.foodInventoryRepo.updateQuantity(
@@ -267,10 +277,9 @@ export class QuestsService {
         if (!updated) {
           throw new AppError(500, "UPDATE_FAILED", "Failed to update inventory.", true);
         }
-        inventory = updated;
       } else {
         // Create new inventory record
-        inventory = await this.foodInventoryRepo.addFoodToInventory(owner_id, rewardPetFood, 1);
+        await this.foodInventoryRepo.addFoodToInventory(owner_id, rewardPetFood, 1);
       }
     }
 

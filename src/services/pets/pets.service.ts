@@ -98,7 +98,12 @@ export class PetsService {
       pet = await this.petsRepo.createPet(owner_id, "Heron", "heron");
     }
 
-    return pet;
+    const leveledPet = await this.updatePetLevel(pet);
+    if (!leveledPet) {
+      throw new AppError(500, "LEVEL_UPDATE_FAILED", "Failed to reconcile pet level.", true);
+    }
+
+    return leveledPet;
   }
 
   /**

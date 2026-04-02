@@ -9,6 +9,7 @@ import { QuestsController } from "../../controllers/quests/quests.controller.js"
 import { PetsRepository } from "../../repository/pets/pets.repository.js";
 import { FoodInventoryRepository } from "../../repository/pets/foodInventory.repository.js";
 import { PetFoodRepository } from "../../repository/pets/petFood.repsository.js";
+import { PetsService } from "../../services/pets/pets.service.js";
 
 
 const router: Router = express.Router();
@@ -17,6 +18,7 @@ const dailyQuestsRepository = new DailyQuestsRepository();
 const userQuestsRepository = new UserQuestsRepository();
 const questDefinitionsRepository = new QuestDefinitionsRepository();
 const petsRepo = new PetsRepository();
+const petsService = new PetsService(petsRepo);
 const foodInventoryRepo = new FoodInventoryRepository();
 const petFoodRepo = new PetFoodRepository();
 const questsService = new QuestsService(
@@ -24,6 +26,7 @@ const questsService = new QuestsService(
   userQuestsRepository,
   questDefinitionsRepository,
   petsRepo,
+  petsService,
   foodInventoryRepo,
   petFoodRepo
 );
